@@ -1,0 +1,8 @@
+name: Smart E-Commerce Local
+values:
+  - key: base_url
+    value: ''
+  - key: access_token
+    value: ''
+  - key: refresh_token
+    value: ''
