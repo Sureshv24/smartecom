@@ -1,0 +1,46 @@
+$kind: http-request
+name: Login
+url: "{{base_url}}/auth/login"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"email\": \"postmanuser001@example.com\",\r
+
+    \  \"password\": \"Postman@12345\"\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "const data = pm.response.json();\r
+
+      \r
+
+      if (data.access_token) {\r
+
+      \    pm.environment.set(\r
+
+      \        \"access_token\",\r
+
+      \        data.access_token\r
+
+      \    );\r
+
+      }\r
+
+      \r
+
+      if (data.refresh_token) {\r
+
+      \    pm.environment.set(\r
+
+      \        \"refresh_token\",\r
+
+      \        data.refresh_token\r
+
+      \    );\r
+
+      }"
+    language: text/javascript
+order: 2234986359274800
