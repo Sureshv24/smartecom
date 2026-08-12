@@ -1,6 +1,10 @@
 from pydantic import BaseModel, EmailStr, Field
+from app.auth.roles import UserRole
 
 
+# ============================================================
+# REGISTER
+# ============================================================
 
 class RegisterRequest(BaseModel):
     name: str = Field(
@@ -17,8 +21,12 @@ class RegisterRequest(BaseModel):
         max_length=128
     )
 
+    role: UserRole = UserRole.CUSTOMER
 
 
+# ============================================================
+# USER RESPONSE
+# ============================================================
 
 class UserResponse(BaseModel):
     id: int
@@ -30,7 +38,9 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-
+# ============================================================
+# LOGIN
+# ============================================================
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -42,7 +52,9 @@ class LoginRequest(BaseModel):
     )
 
 
-
+# ============================================================
+# TOKEN RESPONSE
+# ============================================================
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -50,12 +62,17 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-
+# ============================================================
+# REFRESH TOKEN REQUEST
+# ============================================================
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+# ============================================================
+# ACCESS TOKEN RESPONSE
+# ============================================================
 
 class AccessTokenResponse(BaseModel):
     access_token: str

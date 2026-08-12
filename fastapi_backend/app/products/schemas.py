@@ -7,7 +7,7 @@ class ProductCreate(BaseModel):
     description: Optional[str] = None
     price: float
     stock: int
-    images: Optional[str] = None
+    images: Optional[list[str]] = None
 
 
 class ProductUpdate(BaseModel):
@@ -15,7 +15,7 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     price: Optional[float] = None
     stock: Optional[int] = None
-    images: Optional[str] = None
+    images: Optional[list[str]] = None
 
 
 class ProductResponse(BaseModel):
@@ -24,7 +24,7 @@ class ProductResponse(BaseModel):
     description: Optional[str] = None
     price: float
     stock: int
-    images: Optional[str] = None
+    images: Optional[list[str]] = None
 
     model_config = ConfigDict(
         from_attributes=True

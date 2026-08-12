@@ -169,11 +169,11 @@ def register_user(
     )
 
     new_user = User(
-        name=user_data.name,
-        email=user_data.email,
-        password=hashed_password,
-        role="customer"
-    )
+    name=user_data.name,
+    email=user_data.email,
+    password=hashed_password,
+    role=user_data.role.value
+)
 
     db.add(new_user)
     db.commit()
