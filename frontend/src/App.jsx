@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { api } from "./api";
 import "./App.css";
 
@@ -20,13 +20,21 @@ function App() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
 
+
   // ============================================================
   // PAGE NAVIGATION
   // ============================================================
 
   const [showCart, setShowCart] = useState(false);
+
   const [showPaymentMethod, setShowPaymentMethod] =
     useState(false);
+
+  // NEW:
+  // Controls whether 3 featured products or all products are shown
+  const [showAllProducts, setShowAllProducts] =
+    useState(false);
+
 
   // ============================================================
   // AUTH0
@@ -47,6 +55,7 @@ function App() {
 
   useEffect(() => {
     if (isAuthenticated && auth0User) {
+
       const socialUser = {
         id:
           auth0User.sub ||
@@ -90,6 +99,7 @@ function App() {
         password,
       });
 
+
       if (!data.access_token) {
         setMessage(
           data.detail ||
@@ -99,11 +109,20 @@ function App() {
         return;
       }
 
-      // Store FastAPI JWT
+
+      // --------------------------------------------------------
+      // Store access token
+      // --------------------------------------------------------
+
       localStorage.setItem(
         "access_token",
         data.access_token
       );
+
+
+      // --------------------------------------------------------
+      // Store refresh token
+      // --------------------------------------------------------
 
       if (data.refresh_token) {
         localStorage.setItem(
@@ -112,34 +131,34 @@ function App() {
         );
       }
 
-      // Get FastAPI user
-      const userData = await api.getMe(
-        data.access_token
-      );
+
+      // --------------------------------------------------------
+      // Get current user
+      // --------------------------------------------------------
+
+      const userData =
+        await api.getMe(
+          data.access_token
+        );
+
 
       if (userData?.email) {
+
         setUser(userData);
 
         setMessage(
           "Login successful! ✅"
         );
+
       } else {
+
         setMessage(
           "Token received, but user details could not be loaded."
         );
       }
 
-      console.log(
-        "Login response:",
-        data
-      );
-
-      console.log(
-        "User:",
-        userData
-      );
-
     } catch (error) {
+
       console.error(
         "Login error:",
         error
@@ -159,6 +178,7 @@ function App() {
 
   const handleGoogleLogin = async () => {
     try {
+
       setMessage(
         "Redirecting to Google..."
       );
@@ -170,6 +190,7 @@ function App() {
       });
 
     } catch (error) {
+
       console.error(
         "Google login error:",
         error
@@ -188,6 +209,7 @@ function App() {
 
   const handleFacebookLogin = async () => {
     try {
+
       setMessage(
         "Redirecting to Facebook..."
       );
@@ -199,6 +221,7 @@ function App() {
       });
 
     } catch (error) {
+
       console.error(
         "Facebook login error:",
         error
@@ -216,7 +239,9 @@ function App() {
   // ============================================================
 
   const handleLogout = () => {
-    // FastAPI token cleanup
+
+    // FastAPI tokens
+
     localStorage.removeItem(
       "access_token"
     );
@@ -229,18 +254,29 @@ function App() {
       "user"
     );
 
-    // Reset React state
+
+    // React state
+
     setUser(null);
 
     setEmail("");
+
     setPassword("");
+
     setMessage("");
 
     setShowCart(false);
+
     setShowPaymentMethod(false);
 
+    // Reset product view
+    setShowAllProducts(false);
+
+
     // Auth0 logout
+
     if (isAuthenticated) {
+
       auth0Logout({
         logoutParams: {
           returnTo:
@@ -256,70 +292,72 @@ function App() {
   // ============================================================
 
   if (auth0Loading) {
+
     return (
-      <div className="login-container">
-        <div className="login-card">
+      <div className="auth-loading-page">
+
+        <div className="auth-loading-card">
+
+          <div className="loading-spinner"></div>
+
           <h2>
-            Loading authentication...
+            Loading Smart E-Commerce...
           </h2>
 
           <p>
-            Please wait...
+            Please wait while we prepare your account.
           </p>
+
         </div>
+
       </div>
     );
   }
 
 
   // ============================================================
-  // PAYMENT METHOD PAGE
+  // PAYMENT PAGE
   // ============================================================
 
   if (
     user &&
     showPaymentMethod
   ) {
+
     return (
       <PaymentMethod
+
         onBack={() =>
           setShowPaymentMethod(false)
         }
 
+
         onContinue={async (
           paymentMethod
         ) => {
+
           try {
+
             const token =
               localStorage.getItem(
                 "access_token"
               );
 
-            /*
-              Email/password users have
-              the FastAPI JWT.
-
-              Auth0 social users currently
-              don't have a FastAPI JWT yet.
-            */
 
             if (!token) {
+
               throw new Error(
-                "Your social account still needs to be connected to the FastAPI account."
+                "Please login again."
               );
             }
 
-            console.log(
-              "Selected payment method:",
-              paymentMethod
-            );
 
-            // Create order
             const order =
               await api.createOrder(
                 paymentMethod,
                 token
               );
+
 
             console.log(
               "Order created:",
@@ -327,17 +365,18 @@ function App() {
             );
 
 
-            // ==================================================
+            // ------------------------------------------------
             // COD
-            // ==================================================
+            // ------------------------------------------------
 
             if (
-              paymentMethod ===
-              "cod"
+              paymentMethod === "cod"
             ) {
+
               alert(
                 `Order #${order.id} placed successfully!`
               );
+
 
               setShowPaymentMethod(
                 false
@@ -349,17 +388,18 @@ function App() {
             }
 
 
-            // ==================================================
+            // ------------------------------------------------
             // GPAY
-            // ==================================================
+            // ------------------------------------------------
 
             if (
-              paymentMethod ===
-              "gpay"
+              paymentMethod === "gpay"
             ) {
+
               alert(
-                `Order #${order.id} created. GPay payment integration is next.`
+                `Order #${order.id} created. GPay payment flow is ready for integration.`
               );
+
 
               setShowPaymentMethod(
                 false
@@ -369,10 +409,12 @@ function App() {
             }
 
           } catch (error) {
+
             console.error(
               "Checkout error:",
               error
             );
+
 
             alert(
               error.message ||
@@ -393,16 +435,17 @@ function App() {
     user &&
     showCart
   ) {
+
     return (
       <Cart
+
         onBack={() =>
           setShowCart(false)
         }
 
+
         onCheckout={() =>
-          setShowPaymentMethod(
-            true
-          )
+          setShowPaymentMethod(true)
         }
       />
     );
@@ -410,251 +453,332 @@ function App() {
 
 
   // ============================================================
-  // MAIN UI
+  // LOGIN PAGE
+  // ============================================================
+
+  if (!user) {
+
+    return (
+      <div className="auth-page">
+
+        <div className="auth-card">
+
+          {/* ==================================================
+              BRAND
+          ================================================== */}
+
+          <div className="auth-brand">
+
+            <div className="auth-brand-icon">
+              🛍️
+            </div>
+
+            <div>
+
+              <h1>
+                Smart E-Commerce
+              </h1>
+
+              <p>
+                Shop smarter. Live better.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {/* ==================================================
+              LOGIN TITLE
+          ================================================== */}
+
+          <div className="auth-heading">
+
+            <h2 >
+              Welcome back 
+            </h2>
+
+            <p>
+              Login to continue shopping
+            </p>
+
+          </div>
+
+
+          {/* ==================================================
+              EMAIL / PASSWORD
+          ================================================== */}
+
+          <form
+            onSubmit={handleLogin}
+          >
+
+            <div className="form-group">
+
+              <label>
+                Email
+              </label>
+
+              <input
+                type="email"
+                placeholder="Enter your email"
+
+                value={email}
+
+                onChange={(e) =>
+                  setEmail(
+                    e.target.value
+                  )
+                }
+
+                required
+              />
+
+            </div>
+
+
+            <div className="form-group">
+
+              <label>
+                Password
+              </label>
+
+              <input
+                type="password"
+                placeholder="Enter your password"
+
+                value={password}
+
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+
+                required
+              />
+
+            </div>
+
+
+            <button
+              type="submit"
+              className="primary-auth-btn"
+            >
+              Login
+            </button>
+
+          </form>
+
+
+          {/* ==================================================
+              SOCIAL DIVIDER
+          ================================================== */}
+
+          <div className="social-divider">
+
+            <span>
+              OR CONTINUE WITH
+            </span>
+
+          </div>
+
+
+          {/* ==================================================
+              GOOGLE
+          ================================================== */}
+
+          <button
+            type="button"
+            className="social-login google-login"
+
+            onClick={
+              handleGoogleLogin
+            }
+          >
+
+            <span className="social-icon">
+              G
+            </span>
+
+            Continue with Google
+
+          </button>
+
+
+          {/* ==================================================
+              FACEBOOK
+          ================================================== */}
+
+          <button
+            type="button"
+            className="social-login facebook-login"
+
+            onClick={
+              handleFacebookLogin
+            }
+          >
+
+            <span className="social-icon">
+              f
+            </span>
+
+            Continue with Facebook
+
+          </button>
+
+
+          {/* ==================================================
+              MESSAGE
+          ================================================== */}
+
+          {message && (
+
+            <p className="message">
+              {message}
+            </p>
+
+          )}
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  // ============================================================
+  // E-COMMERCE DASHBOARD
   // ============================================================
 
   return (
-    <div className="login-container">
 
-      <div className="login-card">
+    <div className="store-app">
 
-        {!user ? (
 
-          // ====================================================
-          // LOGIN PAGE
-          // ====================================================
+      {/* ========================================================
+          NAVBAR
+      ======================================================== */}
 
-          <>
-            <h1>
+      <header className="store-navbar">
+
+        <div className="store-navbar-inner">
+
+
+          {/* ==================================================
+              LOGO
+          ================================================== */}
+
+          <button
+            type="button"
+            className="store-logo"
+
+            onClick={() => {
+
+              setShowCart(false);
+
+              setShowPaymentMethod(
+                false
+              );
+
+              // Return to featured products
+              setShowAllProducts(
+                false
+              );
+            }}
+          >
+
+            <span className="store-logo-icon">
+              🛍️
+            </span>
+
+            <span>
               Smart E-Commerce
-            </h1>
+            </span>
 
-            <p>
-              Login to your account
-            </p>
+          </button>
 
 
-            {/* ==================================================
-                EMAIL / PASSWORD LOGIN
-            ================================================== */}
+          {/* ==================================================
+              SEARCH
+          ================================================== */}
 
-            <form
-              onSubmit={
-                handleLogin
-              }
-            >
+          <div className="store-search">
 
-              <div className="form-group">
+            <span>
+              🔍
+            </span>
 
-                <label>
-                  Email
-                </label>
+            <input
+              type="text"
+              placeholder="Search products..."
+            />
 
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-              </div>
+          </div>
 
 
-              <div className="form-group">
+          {/* ==================================================
+              NAV ACTIONS
+          ================================================== */}
 
-                <label>
-                  Password
-                </label>
-
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(
-                      e.target.value
-                    )
-                  }
-                  required
-                />
-
-              </div>
+          <div className="store-nav-actions">
 
 
-              <button
-                type="submit"
-              >
-                Login
-              </button>
-
-            </form>
-
-
-            {/* ==================================================
-                SOCIAL DIVIDER
-            ================================================== */}
-
-            <div className="social-divider">
-              <span>OR</span>
-            </div>
-
-
-            {/* ==================================================
-                GOOGLE LOGIN
-            ================================================== */}
+            {/* CART */}
 
             <button
               type="button"
-              className="social-login google-login"
-              onClick={
-                handleGoogleLogin
+              className="nav-action-btn"
+
+              onClick={() =>
+                setShowCart(true)
               }
             >
 
-              <span className="social-icon">
-              
-              </span>
+              🛒
 
-              Continue with Google
+              <span>
+                Cart
+              </span>
 
             </button>
 
 
-            {/* ==================================================
-                FACEBOOK LOGIN
-            ================================================== */}
+            {/* USER */}
 
-            <button
-              type="button"
-              className="social-login facebook-login"
-              onClick={
-                handleFacebookLogin
-              }
-            >
+            <div className="nav-user">
 
-              <span className="social-icon">
-              
-              </span>
+              <div className="nav-user-avatar">
 
-              Continue with Facebook
-
-            </button>
-
-
-            {/* ==================================================
-                MESSAGE
-            ================================================== */}
-
-            {message && (
-              <p className="message">
-                {message}
-              </p>
-            )}
-
-          </>
-
-        ) : (
-
-          // ====================================================
-          // DASHBOARD
-          // ====================================================
-
-          <>
-            <div className="dashboard-header">
-
-              <div>
-
-                <h1>
-                  Welcome! 👋
-                </h1>
-
-                <p>
-                  You are successfully
-                  logged in.
-                </p>
+                {user?.name
+                  ?.charAt(0)
+                  ?.toUpperCase() ||
+                  "U"}
 
               </div>
 
 
-              {/* CART */}
+              <div className="nav-user-info">
 
-              <button
-                type="button"
-                className="cart-nav-btn"
-                onClick={() =>
-                  setShowCart(
-                    true
-                  )
-                }
-              >
-                🛒 Cart
-              </button>
+                <strong>
+                  {user.name}
+                </strong>
+
+                <small>
+                  {user.role}
+                </small>
+
+              </div>
 
             </div>
 
 
-            {/* ==================================================
-                USER DETAILS
-            ================================================== */}
-
-            <div className="user-info">
-
-              <h3>
-                User Details
-              </h3>
-
-              <p>
-                <strong>
-                  Name:
-                </strong>{" "}
-                {user.name}
-              </p>
-
-              <p>
-                <strong>
-                  Email:
-                </strong>{" "}
-                {user.email}
-              </p>
-
-              <p>
-                <strong>
-                  Role:
-                </strong>{" "}
-                {user.role}
-              </p>
-
-              {isAuthenticated && (
-                <p>
-                  <strong>
-                    Login:
-                  </strong>{" "}
-                  Auth0 Social Login
-                </p>
-              )}
-
-            </div>
-
-
-            {/* ==================================================
-                PRODUCTS
-            ================================================== */}
-
-            <Products />
-
-
-            {/* ==================================================
-                LOGOUT
-            ================================================== */}
+            {/* LOGOUT */}
 
             <button
               type="button"
-              className="logout-btn"
+              className="nav-logout-btn"
+
               onClick={
                 handleLogout
               }
@@ -662,11 +786,466 @@ function App() {
               Logout
             </button>
 
-          </>
+          </div>
 
-        )}
+        </div>
 
-      </div>
+      </header>
+
+
+      {/* ========================================================
+          MAIN STORE
+      ======================================================== */}
+
+      <main className="store-main">
+
+
+        {/* ======================================================
+            HERO
+        ====================================================== */}
+
+        <section className="store-hero">
+
+          <div className="store-hero-content">
+
+            <span className="hero-badge">
+              ✨ Smart Shopping Experience
+            </span>
+
+
+            <h1>
+
+              Welcome back,
+
+              <br />
+
+              <span>
+                {user.name}
+              </span>
+
+            </h1>
+
+
+            <p>
+              Discover quality products,
+              great prices and a shopping
+              experience designed for you.
+            </p>
+
+
+            <button
+              type="button"
+              className="hero-btn"
+
+              onClick={() => {
+
+                document
+                  .getElementById(
+                    "products"
+                  )
+                  ?.scrollIntoView({
+                    behavior:
+                      "smooth",
+                  });
+
+              }}
+            >
+
+              Explore Products
+
+              <span>
+                →
+              </span>
+
+            </button>
+
+          </div>
+
+
+          <div className="store-hero-visual">
+
+            <div className="hero-circle circle-one"></div>
+
+            <div className="hero-circle circle-two"></div>
+
+            <div className="hero-product-icon">
+              🛍️
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* ======================================================
+            USER SUMMARY
+        ====================================================== */}
+
+        <section className="user-summary-card">
+
+          <div className="user-summary-icon">
+            👤
+          </div>
+
+
+          <div className="user-summary-content">
+
+            <span>
+              Signed in as
+            </span>
+
+            <strong>
+              {user.email}
+            </strong>
+
+          </div>
+
+
+          <div className="role-badge">
+            {user.role}
+          </div>
+
+        </section>
+
+
+        {/* ======================================================
+            CATEGORY BAR
+        ====================================================== */}
+
+        <section className="category-section">
+
+          <div className="section-heading">
+
+            <div>
+
+              <span>
+                Browse
+              </span>
+
+              <h2>
+                Shop by Category
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div className="category-grid">
+
+
+            <button
+              type="button"
+              className="category-card"
+            >
+
+              <span>
+                📱
+              </span>
+
+              <strong>
+                Electronics
+              </strong>
+
+              <small>
+                Latest gadgets
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              className="category-card"
+            >
+
+              <span>
+                ⌚
+              </span>
+
+              <strong>
+                Watches
+              </strong>
+
+              <small>
+                Smart & stylish
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              className="category-card"
+            >
+
+              <span>
+                🎧
+              </span>
+
+              <strong>
+                Audio
+              </strong>
+
+              <small>
+                Sound & music
+              </small>
+
+            </button>
+
+
+            <button
+              type="button"
+              className="category-card"
+            >
+
+              <span>
+                💻
+              </span>
+
+              <strong>
+                Computing
+              </strong>
+
+              <small>
+                Work smarter
+              </small>
+
+            </button>
+
+          </div>
+
+        </section>
+
+
+        {/* ======================================================
+            PRODUCTS
+        ====================================================== */}
+
+        <section
+          className="store-products-section"
+          id="products"
+        >
+
+          <div className="store-section-heading">
+
+            <div>
+
+              <span>
+                {showAllProducts
+                  ? "All Products"
+                  : "Featured Collection"}
+              </span>
+
+              <h2>
+                Explore Our Products
+              </h2>
+
+            </div>
+
+
+            {/* ==================================================
+                VIEW ALL BUTTON
+            ================================================== */}
+
+            <button
+              type="button"
+              className="view-all-btn"
+
+              onClick={() => {
+
+                setShowAllProducts(
+                  true
+                );
+
+                setTimeout(() => {
+
+                  document
+                    .getElementById(
+                      "products"
+                    )
+                    ?.scrollIntoView({
+                      behavior:
+                        "smooth",
+                    });
+
+                }, 100);
+
+              }}
+            >
+
+              {showAllProducts
+                ? "Showing All ✓"
+                : "View All →"}
+
+            </button>
+
+          </div>
+
+
+          {/* ==================================================
+              PRODUCTS COMPONENT
+          ================================================== */}
+
+          <div className="store-products-wrapper">
+
+            <Products
+              showAll={
+                showAllProducts
+              }
+            />
+
+          </div>
+
+        </section>
+
+
+        {/* ======================================================
+            TRUST FEATURES
+        ====================================================== */}
+
+        <section className="trust-section">
+
+
+          <div className="trust-card">
+
+            <span>
+              🚚
+            </span>
+
+            <div>
+
+              <strong>
+                Fast Delivery
+              </strong>
+
+              <p>
+                Quick and reliable delivery
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="trust-card">
+
+            <span>
+              🔒
+            </span>
+
+            <div>
+
+              <strong>
+                Secure Shopping
+              </strong>
+
+              <p>
+                Safe and protected checkout
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="trust-card">
+
+            <span>
+              💳
+            </span>
+
+            <div>
+
+              <strong>
+                Easy Payments
+              </strong>
+
+              <p>
+                GPay and Cash on Delivery
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div className="trust-card">
+
+            <span>
+              ⭐
+            </span>
+
+            <div>
+
+              <strong>
+                Quality Products
+              </strong>
+
+              <p>
+                Products you can trust
+              </p>
+
+            </div>
+
+          </div>
+
+
+        </section>
+
+      </main>
+
+
+      {/* ========================================================
+          FOOTER
+      ======================================================== */}
+
+      <footer className="store-footer">
+
+        <div className="store-footer-inner">
+
+
+          <div>
+
+            <div className="footer-logo">
+              🛍️ Smart E-Commerce
+            </div>
+
+            <p>
+              A smart shopping experience
+              built for modern customers.
+            </p>
+
+          </div>
+
+
+          <div className="footer-contact">
+
+            <strong>
+              Account
+            </strong>
+
+            <span>
+              {user.email}
+            </span>
+
+            <span>
+              Role: {user.role}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div className="footer-bottom">
+
+          © 2026 Smart E-Commerce Platform.
+          All rights reserved.
+
+        </div>
+
+      </footer>
 
     </div>
   );

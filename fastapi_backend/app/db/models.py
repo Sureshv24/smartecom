@@ -88,6 +88,13 @@ class Product(Base):
         nullable=True,
     )
 
+    category = Column(
+        String(100),
+        nullable=False,
+        default="General",
+        index=True,
+    )
+
     price = Column(
         DECIMAL(10, 2),
         nullable=False,
@@ -97,6 +104,13 @@ class Product(Base):
         Integer,
         default=0,
         nullable=False,
+    )
+
+    popularity = Column(
+        Integer,
+        default=0,
+        nullable=False,
+        index=True,
     )
 
     images = Column(
@@ -109,7 +123,6 @@ class Product(Base):
         "OrderItem",
         back_populates="product",
     )
-
 
 # ============================================================
 # CART
