@@ -1604,6 +1604,58 @@ button {
   }
 }
 
+/* =========================================================
+   LOGIN BRAND - CENTERED
+========================================================= */
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  margin-bottom: 32px;
+}
+
+/* Hide logo completely */
+.auth-brand-icon {
+  display: none !important;
+}
+
+/* Smart E-Commerce title */
+.auth-brand h1 {
+  margin: 0;
+
+  text-align: center;
+
+  font-size: 28px;
+
+  line-height: 1.2;
+
+  font-weight: 900;
+
+  letter-spacing: -0.6px;
+
+  color: #0f172a !important;
+
+  opacity: 1 !important;
+}
+
+/* Tagline */
+.auth-brand p {
+  margin: 7px 0 0;
+
+  text-align: center;
+
+  color: #64748b !important;
+
+  font-size: 13px;
+
+  font-weight: 500;
+
+  opacity: 1 !important;
+}
+
 /* ============================================================
    SMART E-COMMERCE MODERN STOREFRONT OVERRIDES
    Works with the new App.jsx structure while preserving

@@ -469,9 +469,7 @@ function App() {
 
           <div className="auth-brand">
 
-            <div className="auth-brand-icon">
-              🛍️
-            </div>
+            
 
             <div>
 
@@ -908,115 +906,7 @@ function App() {
         </section>
 
 
-        {/* ======================================================
-            CATEGORY BAR
-        ====================================================== */}
-
-        <section className="category-section">
-
-          <div className="section-heading">
-
-            <div>
-
-              <span>
-                Browse
-              </span>
-
-              <h2>
-                Shop by Category
-              </h2>
-
-            </div>
-
-          </div>
-
-
-          <div className="category-grid">
-
-
-            <button
-              type="button"
-              className="category-card"
-            >
-
-              <span>
-                📱
-              </span>
-
-              <strong>
-                Electronics
-              </strong>
-
-              <small>
-                Latest gadgets
-              </small>
-
-            </button>
-
-
-            <button
-              type="button"
-              className="category-card"
-            >
-
-              <span>
-                ⌚
-              </span>
-
-              <strong>
-                Watches
-              </strong>
-
-              <small>
-                Smart & stylish
-              </small>
-
-            </button>
-
-
-            <button
-              type="button"
-              className="category-card"
-            >
-
-              <span>
-                🎧
-              </span>
-
-              <strong>
-                Audio
-              </strong>
-
-              <small>
-                Sound & music
-              </small>
-
-            </button>
-
-
-            <button
-              type="button"
-              className="category-card"
-            >
-
-              <span>
-                💻
-              </span>
-
-              <strong>
-                Computing
-              </strong>
-
-              <small>
-                Work smarter
-              </small>
-
-            </button>
-
-          </div>
-
-        </section>
-
+        
 
         {/* ======================================================
             PRODUCTS

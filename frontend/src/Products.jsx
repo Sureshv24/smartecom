@@ -8,10 +8,7 @@ import { api } from "./api";
 
 const ONLINE_PRODUCT_IMAGES = {
 
-  // ----------------------------------------------------------
   // WATCHES
-  // ----------------------------------------------------------
-
   "smart watch":
     "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
 
@@ -19,10 +16,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1557935728-e6d1eaabe558?auto=format&fit=crop&w=800&q=80",
 
 
-  // ----------------------------------------------------------
   // AUDIO
-  // ----------------------------------------------------------
-
   "wireless headphones":
     "https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA3L3Jhd3BpeGVsX29mZmljZV8zNF9jbG9zZXVwX3Byb2R1Y3RfcGhvdG9ncmFwaHlfb2ZfYV93aGl0ZV9ibGFua18zY2MwOWUzYy00ZjdkLTQzMTQtOWYwMi1kY2EzOTgzZjBkOGEucG5n.png",
 
@@ -33,10 +27,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=800&q=80",
 
 
-  // ----------------------------------------------------------
   // ELECTRONICS
-  // ----------------------------------------------------------
-
   "smartphone":
     "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
 
@@ -44,10 +35,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80",
 
 
-  // ----------------------------------------------------------
   // COMPUTING
-  // ----------------------------------------------------------
-
   "laptop":
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
 
@@ -62,10 +50,6 @@ const ONLINE_PRODUCT_IMAGES = {
 // ============================================================
 // FALLBACK IMAGE
 // ============================================================
-//
-// This is only used when a product does not have a known image.
-// It is NOT the Smart Watch image.
-//
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=800&q=80";
@@ -84,28 +68,22 @@ const getProductImage = (product) => {
 
 
   // ----------------------------------------------------------
-  // 1. Match by product name
+  // Product name mapping
   // ----------------------------------------------------------
 
   if (
-    ONLINE_PRODUCT_IMAGES[
-      productName
-    ]
+    ONLINE_PRODUCT_IMAGES[productName]
   ) {
-    return ONLINE_PRODUCT_IMAGES[
-      productName
-    ];
+    return ONLINE_PRODUCT_IMAGES[productName];
   }
 
 
   // ----------------------------------------------------------
-  // 2. Backend image array containing URL
+  // Backend image URL
   // ----------------------------------------------------------
 
   if (
-    Array.isArray(
-      product?.images
-    )
+    Array.isArray(product?.images)
   ) {
 
     const image =
@@ -114,12 +92,8 @@ const getProductImage = (product) => {
     if (
       image &&
       (
-        image.startsWith(
-          "http://"
-        ) ||
-        image.startsWith(
-          "https://"
-        )
+        image.startsWith("http://") ||
+        image.startsWith("https://")
       )
     ) {
       return image;
@@ -127,20 +101,11 @@ const getProductImage = (product) => {
   }
 
 
-  // ----------------------------------------------------------
-  // 3. Backend image string containing URL
-  // ----------------------------------------------------------
-
   if (
-    typeof product?.images ===
-      "string" &&
+    typeof product?.images === "string" &&
     (
-      product.images.startsWith(
-        "http://"
-      ) ||
-      product.images.startsWith(
-        "https://"
-      )
+      product.images.startsWith("http://") ||
+      product.images.startsWith("https://")
     )
   ) {
     return product.images;
@@ -148,33 +113,28 @@ const getProductImage = (product) => {
 
 
   // ----------------------------------------------------------
-  // 4. Existing database filenames
+  // Database filename mapping
   // ----------------------------------------------------------
 
   const fileName =
-    Array.isArray(
-      product?.images
-    )
+    Array.isArray(product?.images)
       ? product.images[0]
       : product?.images;
 
 
   if (
-    typeof fileName ===
-    "string"
+    typeof fileName === "string"
   ) {
 
-    const normalizedFileName =
+    const normalized =
       fileName
         .trim()
         .toLowerCase();
 
 
     if (
-      normalizedFileName ===
-        "smart-watch.jpg" ||
-      normalizedFileName ===
-        "smartwatch.jpg"
+      normalized === "smart-watch.jpg" ||
+      normalized === "smartwatch.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "smart watch"
@@ -183,10 +143,8 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-        "headphones.jpg" ||
-      normalizedFileName ===
-        "headphone.jpg"
+      normalized === "headphones.jpg" ||
+      normalized === "headphone.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "wireless headphones"
@@ -195,8 +153,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "speaker.jpg"
+      normalized === "speaker.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "bluetooth speaker"
@@ -205,8 +162,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "smartphone.jpg"
+      normalized === "smartphone.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "smartphone"
@@ -215,8 +171,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "laptop.jpg"
+      normalized === "laptop.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "laptop"
@@ -225,8 +180,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "keyboard.jpg"
+      normalized === "keyboard.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "mechanical keyboard"
@@ -235,8 +189,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "mouse.jpg"
+      normalized === "mouse.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "wireless mouse"
@@ -245,8 +198,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "fitness-band.jpg"
+      normalized === "fitness-band.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "fitness band"
@@ -255,8 +207,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "gaming-headset.jpg"
+      normalized === "gaming-headset.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "gaming headset"
@@ -265,8 +216,7 @@ const getProductImage = (product) => {
 
 
     if (
-      normalizedFileName ===
-      "tablet.jpg"
+      normalized === "tablet.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "tablet"
@@ -275,19 +225,17 @@ const getProductImage = (product) => {
   }
 
 
-  // ----------------------------------------------------------
-  // 5. Final fallback
-  // ----------------------------------------------------------
-
   return FALLBACK_IMAGE;
 };
 
 
 // ============================================================
-// PRODUCTS COMPONENT
+// PRODUCTS
 // ============================================================
 
-function Products() {
+function Products({
+  showAll = false
+}) {
 
   const [
     products,
@@ -313,33 +261,29 @@ function Products() {
 
   useEffect(() => {
 
+    let mounted = true;
+
+
     const loadProducts =
       async () => {
 
         try {
 
-          const token =
-            localStorage.getItem(
-              "access_token"
-            );
+          setLoading(true);
+          setMessage("");
 
 
-          if (!token) {
-
-            setMessage(
-              "Please login first."
-            );
-
-            setLoading(false);
-
-            return;
-          }
-
+          // IMPORTANT:
+          // Do NOT manually check access_token here.
+          // api.js handles the access token and refresh token.
 
           const data =
-            await api.getProducts(
-              token
-            );
+            await api.getProducts();
+
+
+          if (!mounted) {
+            return;
+          }
 
 
           if (
@@ -349,6 +293,7 @@ function Products() {
             setProducts(data);
 
           }
+
           else if (
             Array.isArray(
               data?.products
@@ -360,7 +305,10 @@ function Products() {
             );
 
           }
+
           else {
+
+            setProducts([]);
 
             setMessage(
               data?.detail ||
@@ -369,7 +317,13 @@ function Products() {
           }
 
         }
+
         catch (error) {
+
+          if (!mounted) {
+            return;
+          }
+
 
           console.error(
             "Product error:",
@@ -377,22 +331,43 @@ function Products() {
           );
 
 
+          setProducts([]);
+
+
           setMessage(
             error.message ||
-              "Unable to connect to product API."
+              "Unable to load products."
           );
 
         }
+
         finally {
 
-          setLoading(false);
+          if (mounted) {
+            setLoading(false);
+          }
         }
       };
 
 
     loadProducts();
 
+
+    return () => {
+      mounted = false;
+    };
+
   }, []);
+
+
+  // ==========================================================
+  // DISPLAY ONLY 3 OR ALL
+  // ==========================================================
+
+  const visibleProducts =
+    showAll
+      ? products
+      : products.slice(0, 3);
 
 
   // ==========================================================
@@ -402,9 +377,13 @@ function Products() {
   if (loading) {
 
     return (
-      <p className="loading">
-        Loading products...
-      </p>
+      <div className="products-section">
+
+        <p className="loading">
+          Loading products...
+        </p>
+
+      </div>
     );
   }
 
@@ -416,237 +395,230 @@ function Products() {
   if (message) {
 
     return (
-      <p className="message">
-        {message}
-      </p>
+      <div className="products-section">
+
+        <p className="message">
+          {message}
+        </p>
+
+      </div>
     );
   }
 
 
   // ==========================================================
-  // PRODUCTS UI
+  // NO PRODUCTS
   // ==========================================================
 
-  return (
+  if (
+    products.length === 0
+  ) {
 
-    <section className="products-section">
-
-      <h2>
-        Our Products
-      </h2>
-
-
-      {products.length === 0 ? (
+    return (
+      <div className="products-section">
 
         <p className="message">
           No products available.
         </p>
 
-      ) : (
-
-        <div className="products-grid">
-
-          {products.map(
-            (product) => {
-
-              const imageUrl =
-                getProductImage(
-                  product
-                );
+      </div>
+    );
+  }
 
 
-              return (
+  // ==========================================================
+  // PRODUCT LIST
+  // ==========================================================
+
+  return (
+
+    <section
+      className="products-section"
+    >
+
+      <div className="products-grid">
+
+        {visibleProducts.map(
+          (product) => {
+
+            const imageUrl =
+              getProductImage(
+                product
+              );
+
+
+            return (
+
+              <div
+                className="product-card"
+                key={product.id}
+              >
+
+
+                {/* ==================================================
+                    IMAGE
+                ================================================== */}
 
                 <div
-                  className="product-card"
-                  key={product.id}
+                  className="product-image"
                 >
 
+                  <img
+                    src={imageUrl}
+                    alt={product.name}
+                    loading="lazy"
+
+                    onError={(event) => {
+
+                      if (
+                        event.currentTarget
+                          .dataset
+                          .fallback !==
+                        "true"
+                      ) {
+
+                        event.currentTarget
+                          .dataset
+                          .fallback =
+                          "true";
+
+                        event.currentTarget.src =
+                          FALLBACK_IMAGE;
+                      }
+
+                    }}
+                  />
+
+                </div>
+
+
+                {/* ==================================================
+                    PRODUCT INFORMATION
+                ================================================== */}
+
+                <div
+                  className="product-info"
+                >
+
+                  <h3>
+                    {product.name}
+                  </h3>
+
+
+                  <p className="description">
+                    {product.description ||
+                      "No description available"}
+                  </p>
+
+
+                  <p className="price">
+                    ₹
+                    {Number(
+                      product.price || 0
+                    ).toLocaleString(
+                      "en-IN"
+                    )}
+                  </p>
+
+
+                  <p className="stock">
+                    Stock:{" "}
+                    {product.stock}
+                  </p>
+
+
+                  {product.category && (
+
+                    <p className="stock">
+                      Category:{" "}
+                      {product.category}
+                    </p>
+
+                  )}
+
+
+                  {product.popularity !==
+                    undefined && (
+
+                    <p className="stock">
+                      Popularity:{" "}
+                      {product.popularity}
+                    </p>
+
+                  )}
+
+
                   {/* ==================================================
-                      PRODUCT IMAGE
+                      ADD TO CART
                   ================================================== */}
 
-                  <div className="product-image">
+                  <button
+                    type="button"
 
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      loading="lazy"
+                    onClick={async () => {
 
-                      onError={(
-                        event
-                      ) => {
+                      try {
 
-                        console.error(
-                          "Image failed:",
-                          product.name,
-                          imageUrl
+                        const data =
+                          await api.addToCart(
+                            product.id,
+                            1
+                          );
+
+
+                        console.log(
+                          "Cart response:",
+                          data
                         );
 
 
                         if (
-                          event
-                            .currentTarget
-                            .dataset
-                            .fallback !==
-                          "true"
+                          data?.detail
                         ) {
 
-                          event
-                            .currentTarget
-                            .dataset
-                            .fallback =
-                            "true";
-
-                          event
-                            .currentTarget
-                            .src =
-                            FALLBACK_IMAGE;
-                        }
-                      }}
-                    />
-
-                  </div>
-
-
-                  {/* ==================================================
-                      PRODUCT INFORMATION
-                  ================================================== */}
-
-                  <div className="product-info">
-
-                    <h3>
-                      {product.name}
-                    </h3>
-
-
-                    <p className="description">
-                      {product.description ||
-                        "No description available"}
-                    </p>
-
-
-                    <p className="price">
-                      ₹
-                      {Number(
-                        product.price || 0
-                      ).toLocaleString(
-                        "en-IN"
-                      )}
-                    </p>
-
-
-                    <p className="stock">
-                      Stock:{" "}
-                      {product.stock}
-                    </p>
-
-
-                    {product.category && (
-                      <p className="stock">
-                        Category:{" "}
-                        {product.category}
-                      </p>
-                    )}
-
-
-                    {product.popularity !==
-                      undefined && (
-                      <p className="stock">
-                        Popularity:{" "}
-                        {product.popularity}
-                      </p>
-                    )}
-
-
-                    {/* ==================================================
-                        ADD TO CART
-                    ================================================== */}
-
-                    <button
-                      type="button"
-
-                      onClick={async () => {
-
-                        const token =
-                          localStorage.getItem(
-                            "access_token"
+                          alert(
+                            data.detail
                           );
 
-
-                        if (!token) {
+                        } else {
 
                           alert(
-                            "Please login first."
+                            `${product.name} added to cart! ✅`
                           );
-
-                          return;
                         }
 
+                      }
 
-                        try {
+                      catch (error) {
 
-                          const data =
-                            await api.addToCart(
-                              product.id,
-                              1,
-                              token
-                            );
-
-
-                          console.log(
-                            "Cart response:",
-                            data
-                          );
-
-
-                          if (
-                            data?.detail
-                          ) {
-
-                            alert(
-                              data.detail
-                            );
-
-                          }
-                          else {
-
-                            alert(
-                              `${product.name} added to cart! ✅`
-                            );
-                          }
-
-                        }
-                        catch (
+                        console.error(
+                          "Cart error:",
                           error
-                        ) {
-
-                          console.error(
-                            "Cart error:",
-                            error
-                          );
+                        );
 
 
-                          alert(
-                            error.message ||
-                              "Unable to add product to cart."
-                          );
-                        }
+                        alert(
+                          error.message ||
+                            "Unable to add product to cart."
+                        );
+                      }
 
-                      }}
-                    >
-                      🛒 Add to Cart
-                    </button>
+                    }}
+                  >
 
-                  </div>
+                    🛒 Add to Cart
+
+                  </button>
 
                 </div>
-              );
-            }
-          )}
 
-        </div>
-      )}
+              </div>
+
+            );
+          }
+        )}
+
+      </div>
 
     </section>
   );
