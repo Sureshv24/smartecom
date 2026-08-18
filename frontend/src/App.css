@@ -1988,3 +1988,454 @@ html { scroll-behavior: smooth; }
   color: #64748b !important;
   opacity: 1 !important;
 }
+
+
+/* =========================================================
+   FINAL LOGIN PAGE POLISH
+   Logo left + Smart E-Commerce right inside ONE card
+   Everything below centered
+========================================================= */
+
+.auth-page {
+  min-height: 100vh !important;
+  width: 100% !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  padding: 32px 20px !important;
+
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(219, 234, 254, 0.75) 0,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 85%,
+      rgba(220, 252, 231, 0.70) 0,
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fbff 0%,
+      #eef4fb 100%
+    ) !important;
+}
+
+.auth-card {
+  width: min(100%, 500px) !important;
+  max-width: 500px !important;
+
+  padding: 34px 40px 38px !important;
+
+  border-radius: 26px !important;
+
+  background: rgba(255, 255, 255, 0.97) !important;
+
+  border: 1px solid rgba(226, 232, 240, 0.95) !important;
+
+  box-shadow:
+    0 24px 65px rgba(15, 23, 42, 0.12),
+    0 8px 20px rgba(15, 23, 42, 0.05) !important;
+
+  backdrop-filter: blur(14px);
+}
+
+/* Remove old brand layout/icon styling */
+.auth-brand {
+  display: none !important;
+}
+
+.auth-brand-icon {
+  display: none !important;
+}
+
+/* =========================================================
+   TOP BRAND ROW
+========================================================= */
+
+.login-brand-row {
+  width: 100%;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 20px;
+
+  margin: 0 auto 30px !important;
+
+  min-height: 104px;
+}
+
+.login-logo-side {
+  width: 150px;
+  flex: 0 0 150px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-smart-logo {
+  display: block !important;
+
+  width: 138px !important;
+  max-width: 100% !important;
+  height: auto !important;
+
+  object-fit: contain !important;
+
+  margin: 0 !important;
+
+  filter:
+    drop-shadow(
+      0 10px 18px rgba(15, 23, 42, 0.10)
+    );
+}
+
+.login-title-side {
+  flex: 1;
+  min-width: 0;
+
+  text-align: left !important;
+}
+
+.login-title-side h1 {
+  margin: 0 !important;
+
+  color: #0f172a !important;
+
+  font-size: 26px !important;
+  line-height: 1.15 !important;
+
+  font-weight: 900 !important;
+
+  letter-spacing: -0.6px !important;
+
+  text-align: left !important;
+}
+
+.login-title-side p {
+  margin: 7px 0 0 !important;
+
+  color: #64748b !important;
+
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+
+  font-weight: 500 !important;
+
+  text-align: left !important;
+}
+
+/* =========================================================
+   WELCOME SECTION
+========================================================= */
+
+.auth-heading {
+  margin: 0 0 26px !important;
+
+  text-align: center !important;
+}
+
+.auth-heading h2 {
+  margin: 0 0 7px !important;
+
+  color: #0f172a !important;
+
+  font-size: 30px !important;
+  line-height: 1.15 !important;
+
+  font-weight: 800 !important;
+
+  letter-spacing: -0.5px !important;
+
+  text-align: center !important;
+}
+
+.auth-heading p {
+  margin: 0 !important;
+
+  color: #64748b !important;
+
+  font-size: 14px !important;
+
+  text-align: center !important;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.auth-card form {
+  width: 100%;
+  margin: 0;
+}
+
+.auth-card .form-group {
+  margin-bottom: 19px !important;
+}
+
+.auth-card .form-group label {
+  display: block;
+
+  margin-bottom: 8px !important;
+
+  color: #334155 !important;
+
+  font-size: 14px !important;
+  font-weight: 700 !important;
+
+  text-align: center !important;
+}
+
+.auth-card .form-group input {
+  width: 100% !important;
+  height: 50px !important;
+
+  padding: 0 15px !important;
+
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 11px !important;
+
+  background: #ffffff !important;
+
+  color: #0f172a !important;
+
+  font-size: 14px !important;
+
+  outline: none !important;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.auth-card .form-group input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.auth-card .form-group input:focus {
+  border-color: #2563eb !important;
+
+  background: #fff !important;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.09) !important;
+}
+
+/* =========================================================
+   LOGIN BUTTON
+========================================================= */
+
+.auth-card .primary-auth-btn {
+  width: 100% !important;
+  min-height: 51px !important;
+
+  margin-top: 2px !important;
+
+  border: none !important;
+  border-radius: 12px !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    ) !important;
+
+  color: #ffffff !important;
+
+  font-size: 15px !important;
+  font-weight: 800 !important;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 22px rgba(37, 99, 235, 0.20) !important;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.auth-card .primary-auth-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 14px 28px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* =========================================================
+   SOCIAL DIVIDER
+========================================================= */
+
+.auth-card .social-divider {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 12px 0 10px !important;
+
+  text-align: center;
+}
+
+.auth-card .social-divider span {
+  color: #334155 !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* =========================================================
+   SOCIAL BUTTONS
+========================================================= */
+
+.auth-card .social-login {
+  width: 100% !important;
+  min-height: 49px !important;
+
+  margin-bottom: 10px !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  border-radius: 12px !important;
+
+  font-size: 14px !important;
+  font-weight: 800 !important;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.auth-card .social-login:hover {
+  transform: translateY(-1px);
+}
+
+.auth-card .google-login,
+.auth-card .facebook-login {
+  background: #ffffff !important;
+
+  color: #1f2937 !important;
+
+  border: 1px solid #d7dee8 !important;
+
+  box-shadow:
+    0 5px 15px rgba(15, 23, 42, 0.06) !important;
+}
+
+.auth-card .google-login:hover,
+.auth-card .facebook-login:hover {
+  background: #f8fbff !important;
+
+  border-color: #bfdbfe !important;
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.08) !important;
+}
+
+.auth-card .social-icon {
+  width: 27px !important;
+  height: 27px !important;
+
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50% !important;
+
+  font-size: 17px !important;
+  font-weight: 900 !important;
+}
+
+.auth-card .google-login .social-icon {
+  background: #f1f5f9 !important;
+  color: #4285f4 !important;
+}
+
+.auth-card .facebook-login .social-icon {
+  background: #1877f2 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.auth-card .message {
+  margin: 12px 0 0 !important;
+
+  color: #b91c1c !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+
+  text-align: center !important;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .auth-page {
+    padding: 20px 14px !important;
+  }
+
+  .auth-card {
+    width: min(100%, 440px) !important;
+
+    padding: 28px 24px 30px !important;
+
+    border-radius: 22px !important;
+  }
+
+  .login-brand-row {
+    gap: 13px;
+
+    min-height: 82px;
+
+    margin-bottom: 25px !important;
+  }
+
+  .login-logo-side {
+    width: 100px;
+    flex-basis: 100px;
+  }
+
+  .shop-smart-logo {
+    width: 92px !important;
+  }
+
+  .login-title-side h1 {
+    font-size: 21px !important;
+  }
+
+  .login-title-side p {
+    font-size: 11px !important;
+  }
+
+  .auth-heading h2 {
+    font-size: 27px !important;
+  }
+
+  .auth-heading p {
+    font-size: 13px !important;
+  }
+}

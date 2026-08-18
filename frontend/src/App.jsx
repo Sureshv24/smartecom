@@ -10,6 +10,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 
 function App() {
+
   // ============================================================
   // LOCAL LOGIN STATE
   // ============================================================
@@ -30,8 +31,11 @@ function App() {
   const [showPaymentMethod, setShowPaymentMethod] =
     useState(false);
 
-  // NEW:
-  // Controls whether 3 featured products or all products are shown
+
+  // ============================================================
+  // PRODUCT VIEW
+  // ============================================================
+
   const [showAllProducts, setShowAllProducts] =
     useState(false);
 
@@ -54,9 +58,14 @@ function App() {
   // ============================================================
 
   useEffect(() => {
-    if (isAuthenticated && auth0User) {
+
+    if (
+      isAuthenticated &&
+      auth0User
+    ) {
 
       const socialUser = {
+
         id:
           auth0User.sub ||
           auth0User.email ||
@@ -74,13 +83,18 @@ function App() {
         role: "customer",
       };
 
+
       setUser(socialUser);
 
       setMessage(
         "Social login successful! ✅"
       );
     }
-  }, [isAuthenticated, auth0User]);
+
+  }, [
+    isAuthenticated,
+    auth0User,
+  ]);
 
 
   // ============================================================
@@ -88,12 +102,15 @@ function App() {
   // ============================================================
 
   const handleLogin = async (e) => {
+
     e.preventDefault();
 
     setMessage("Logging in...");
     setUser(null);
 
+
     try {
+
       const data = await api.login({
         email,
         password,
@@ -101,9 +118,10 @@ function App() {
 
 
       if (!data.access_token) {
+
         setMessage(
           data.detail ||
-            "Login failed ❌"
+          "Login failed ❌"
         );
 
         return;
@@ -111,7 +129,7 @@ function App() {
 
 
       // --------------------------------------------------------
-      // Store access token
+      // STORE ACCESS TOKEN
       // --------------------------------------------------------
 
       localStorage.setItem(
@@ -121,10 +139,11 @@ function App() {
 
 
       // --------------------------------------------------------
-      // Store refresh token
+      // STORE REFRESH TOKEN
       // --------------------------------------------------------
 
       if (data.refresh_token) {
+
         localStorage.setItem(
           "refresh_token",
           data.refresh_token
@@ -133,7 +152,7 @@ function App() {
 
 
       // --------------------------------------------------------
-      // Get current user
+      // GET CURRENT USER
       // --------------------------------------------------------
 
       const userData =
@@ -164,9 +183,10 @@ function App() {
         error
       );
 
+
       setMessage(
         error.message ||
-          "Unable to connect to FastAPI ❌"
+        "Unable to connect to FastAPI ❌"
       );
     }
   };
@@ -177,16 +197,21 @@ function App() {
   // ============================================================
 
   const handleGoogleLogin = async () => {
+
     try {
 
       setMessage(
         "Redirecting to Google..."
       );
 
+
       await loginWithRedirect({
+
         authorizationParams: {
-          connection: "google-oauth2",
+          connection:
+            "google-oauth2",
         },
+
       });
 
     } catch (error) {
@@ -195,6 +220,7 @@ function App() {
         "Google login error:",
         error
       );
+
 
       setMessage(
         "Unable to start Google login ❌"
@@ -208,16 +234,21 @@ function App() {
   // ============================================================
 
   const handleFacebookLogin = async () => {
+
     try {
 
       setMessage(
         "Redirecting to Facebook..."
       );
 
+
       await loginWithRedirect({
+
         authorizationParams: {
-          connection: "facebook",
+          connection:
+            "facebook",
         },
+
       });
 
     } catch (error) {
@@ -226,6 +257,7 @@ function App() {
         "Facebook login error:",
         error
       );
+
 
       setMessage(
         "Unable to start Facebook login ❌"
@@ -240,8 +272,6 @@ function App() {
 
   const handleLogout = () => {
 
-    // FastAPI tokens
-
     localStorage.removeItem(
       "access_token"
     );
@@ -255,33 +285,25 @@ function App() {
     );
 
 
-    // React state
-
     setUser(null);
-
     setEmail("");
-
     setPassword("");
-
     setMessage("");
 
     setShowCart(false);
-
     setShowPaymentMethod(false);
-
-    // Reset product view
     setShowAllProducts(false);
 
-
-    // Auth0 logout
 
     if (isAuthenticated) {
 
       auth0Logout({
+
         logoutParams: {
           returnTo:
             window.location.origin,
         },
+
       });
     }
   };
@@ -294,6 +316,7 @@ function App() {
   if (auth0Loading) {
 
     return (
+
       <div className="auth-loading-page">
 
         <div className="auth-loading-card">
@@ -325,12 +348,12 @@ function App() {
   ) {
 
     return (
+
       <PaymentMethod
 
         onBack={() =>
           setShowPaymentMethod(false)
         }
-
 
         onContinue={async (
           paymentMethod
@@ -378,10 +401,7 @@ function App() {
               );
 
 
-              setShowPaymentMethod(
-                false
-              );
-
+              setShowPaymentMethod(false);
               setShowCart(false);
 
               return;
@@ -401,10 +421,7 @@ function App() {
               );
 
 
-              setShowPaymentMethod(
-                false
-              );
-
+              setShowPaymentMethod(false);
               setShowCart(false);
             }
 
@@ -418,10 +435,12 @@ function App() {
 
             alert(
               error.message ||
-                "Unable to process checkout."
+              "Unable to process checkout."
             );
           }
+
         }}
+
       />
     );
   }
@@ -437,16 +456,17 @@ function App() {
   ) {
 
     return (
+
       <Cart
 
         onBack={() =>
           setShowCart(false)
         }
 
-
         onCheckout={() =>
           setShowPaymentMethod(true)
         }
+
       />
     );
   }
@@ -459,19 +479,36 @@ function App() {
   if (!user) {
 
     return (
+
       <div className="auth-page">
 
         <div className="auth-card">
 
+
           {/* ==================================================
-              BRAND
+              TOP BRAND ROW
+              LOGO LEFT + SMART E-COMMERCE RIGHT
           ================================================== */}
 
-          <div className="auth-brand">
+          <div className="login-brand-row">
 
-            
 
-            <div>
+            {/* LEFT - SHOP SMART LOGO */}
+
+            <div className="login-logo-side">
+
+              <img
+                src="/logo.png"
+                alt="Shop Smart E-Commerce"
+                className="shop-smart-logo"
+              />
+
+            </div>
+
+
+            {/* RIGHT - SMART E-COMMERCE */}
+
+            <div className="login-title-side">
 
               <h1>
                 Smart E-Commerce
@@ -487,13 +524,13 @@ function App() {
 
 
           {/* ==================================================
-              LOGIN TITLE
+              WELCOME
           ================================================== */}
 
           <div className="auth-heading">
 
-            <h2 >
-              Welcome back 
+            <h2>
+              Welcome back
             </h2>
 
             <p>
@@ -504,7 +541,7 @@ function App() {
 
 
           {/* ==================================================
-              EMAIL / PASSWORD
+              LOGIN FORM
           ================================================== */}
 
           <form
@@ -663,9 +700,7 @@ function App() {
         <div className="store-navbar-inner">
 
 
-          {/* ==================================================
-              LOGO
-          ================================================== */}
+          {/* STORE LOGO */}
 
           <button
             type="button"
@@ -675,15 +710,12 @@ function App() {
 
               setShowCart(false);
 
-              setShowPaymentMethod(
-                false
-              );
+              setShowPaymentMethod(false);
 
-              // Return to featured products
-              setShowAllProducts(
-                false
-              );
+              setShowAllProducts(false);
+
             }}
+
           >
 
             <span className="store-logo-icon">
@@ -697,9 +729,7 @@ function App() {
           </button>
 
 
-          {/* ==================================================
-              SEARCH
-          ================================================== */}
+          {/* SEARCH */}
 
           <div className="store-search">
 
@@ -715,9 +745,7 @@ function App() {
           </div>
 
 
-          {/* ==================================================
-              NAV ACTIONS
-          ================================================== */}
+          {/* NAV ACTIONS */}
 
           <div className="store-nav-actions">
 
@@ -731,6 +759,7 @@ function App() {
               onClick={() =>
                 setShowCart(true)
               }
+
             >
 
               🛒
@@ -780,6 +809,7 @@ function App() {
               onClick={
                 handleLogout
               }
+
             >
               Logout
             </button>
@@ -847,6 +877,7 @@ function App() {
                   });
 
               }}
+
             >
 
               Explore Products
@@ -906,8 +937,6 @@ function App() {
         </section>
 
 
-        
-
         {/* ======================================================
             PRODUCTS
         ====================================================== */}
@@ -934,9 +963,7 @@ function App() {
             </div>
 
 
-            {/* ==================================================
-                VIEW ALL BUTTON
-            ================================================== */}
+            {/* VIEW ALL */}
 
             <button
               type="button"
@@ -947,6 +974,7 @@ function App() {
                 setShowAllProducts(
                   true
                 );
+
 
                 setTimeout(() => {
 
@@ -962,6 +990,7 @@ function App() {
                 }, 100);
 
               }}
+
             >
 
               {showAllProducts
@@ -972,10 +1001,6 @@ function App() {
 
           </div>
 
-
-          {/* ==================================================
-              PRODUCTS COMPONENT
-          ================================================== */}
 
           <div className="store-products-wrapper">
 
