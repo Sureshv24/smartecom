@@ -5,48 +5,63 @@ import "./App.css";
 
 // ============================================================
 // ONLINE PRODUCT IMAGES
+// Same image mapping used in Products.jsx
 // ============================================================
 
 const ONLINE_PRODUCT_IMAGES = {
-  "smart watch":
-    "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
-
   "wireless headphones":
     "https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA3L3Jhd3BpeGVsX29mZmljZV8zNF9jbG9zZXVwX3Byb2R1Y3RfcGhvdG9ncmFwaHlfb2ZfYV93aGl0ZV9ibGFua18zY2MwOWUzYy00ZjdkLTQzMTQtOWYwMi1kY2EzOTgzZjBkOGEucG5n.png",
+
+  "smart watch":
+    "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
 };
 
 
+// ============================================================
+// FALLBACK IMAGE
+// ============================================================
+
 const FALLBACK_IMAGE =
-  ONLINE_PRODUCT_IMAGES["smart watch"];
+  "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png";
 
 
 // ============================================================
-// PRODUCT IMAGE
+// GET PRODUCT IMAGE
 // ============================================================
 
 const getProductImage = (product) => {
+
   const productName = (
     product?.name || ""
   )
     .trim()
     .toLowerCase();
 
-  if (ONLINE_PRODUCT_IMAGES[productName]) {
-    return ONLINE_PRODUCT_IMAGES[productName];
-  }
+
+  // ----------------------------------------------------------
+  // 1. Use known product name mapping
+  // ----------------------------------------------------------
 
   if (
-    typeof product?.images === "string" &&
-    (
-      product.images.startsWith("http://") ||
-      product.images.startsWith("https://")
-    )
+    ONLINE_PRODUCT_IMAGES[productName]
   ) {
-    return product.images;
+    return ONLINE_PRODUCT_IMAGES[
+      productName
+    ];
   }
 
-  if (Array.isArray(product?.images)) {
-    const image = product.images[0];
+
+  // ----------------------------------------------------------
+  // 2. Backend image array with full URL
+  // ----------------------------------------------------------
+
+  if (
+    Array.isArray(product?.images)
+  ) {
+
+    const image =
+      product.images[0];
+
 
     if (
       image &&
@@ -59,22 +74,48 @@ const getProductImage = (product) => {
     }
   }
 
-  if (typeof product?.images === "string") {
-    const imageName =
-      product.images.trim().toLowerCase();
+
+  // ----------------------------------------------------------
+  // 3. Backend image string with full URL
+  // ----------------------------------------------------------
+
+  if (
+    typeof product?.images === "string"
+  ) {
+
+    const image =
+      product.images.trim();
+
 
     if (
-      imageName === "headphones.jpg" ||
-      imageName === "headphone.jpg"
+      image.startsWith("http://") ||
+      image.startsWith("https://")
+    ) {
+      return image;
+    }
+
+
+    // --------------------------------------------------------
+    // 4. Existing database filenames
+    // --------------------------------------------------------
+
+    const fileName =
+      image.toLowerCase();
+
+
+    if (
+      fileName === "headphones.jpg" ||
+      fileName === "headphone.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "wireless headphones"
       ];
     }
 
+
     if (
-      imageName === "smart-watch.jpg" ||
-      imageName === "smartwatch.jpg"
+      fileName === "smart-watch.jpg" ||
+      fileName === "smartwatch.jpg"
     ) {
       return ONLINE_PRODUCT_IMAGES[
         "smart watch"
@@ -82,15 +123,20 @@ const getProductImage = (product) => {
     }
   }
 
+
+  // ----------------------------------------------------------
+  // 5. Final fallback
+  // ----------------------------------------------------------
+
   return FALLBACK_IMAGE;
 };
 
 
 // ============================================================
-// CART
+// CART COMPONENT
 // ============================================================
 
-function Cart({ onBack, onCheckout }) {
+function Cart({ onBack }) {
 
   const [cartItems, setCartItems] =
     useState([]);
@@ -98,22 +144,11 @@ function Cart({ onBack, onCheckout }) {
   const [loading, setLoading] =
     useState(true);
 
+  const [checkoutLoading, setCheckoutLoading] =
+    useState(false);
+
   const [error, setError] =
     useState("");
-
-  // Backend cart calculation
-  const [cartSummary, setCartSummary] =
-    useState({
-      subtotal: 0,
-      tax: 0,
-      grand_total: 0,
-    });
-
-
-  const token =
-    localStorage.getItem(
-      "access_token"
-    );
 
 
   // ============================================================
@@ -121,104 +156,51 @@ function Cart({ onBack, onCheckout }) {
   // ============================================================
 
   const loadCart = async () => {
+
     try {
+
       setLoading(true);
+
       setError("");
 
+
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
+
       if (!token) {
+
         throw new Error(
           "Please login again."
         );
       }
 
+
       const data =
         await api.getCart(token);
 
 
-      // --------------------------------------------------------
-      // NEW BACKEND RESPONSE
-      // --------------------------------------------------------
-
       if (
-        data &&
-        Array.isArray(data.items)
+        Array.isArray(data)
       ) {
+
+        setCartItems(data);
+
+      } else if (
+        Array.isArray(data?.items)
+      ) {
+
         setCartItems(
           data.items
         );
 
-        setCartSummary({
-          subtotal:
-            Number(
-              data.subtotal || 0
-            ),
+      } else {
 
-          tax:
-            Number(
-              data.tax || 0
-            ),
-
-          grand_total:
-            Number(
-              data.grand_total || 0
-            ),
-        });
-
-      }
-
-      // --------------------------------------------------------
-      // OLD ARRAY RESPONSE SUPPORT
-      // --------------------------------------------------------
-
-      else if (
-        Array.isArray(data)
-      ) {
-        setCartItems(data);
-
-        // Calculate fallback values
-        const subtotal =
-          data.reduce(
-            (sum, item) => {
-              const price =
-                Number(
-                  item.product?.price ||
-                    0
-                );
-
-              const quantity =
-                Number(
-                  item.quantity || 0
-                );
-
-              return (
-                sum +
-                price *
-                  quantity
-              );
-            },
-            0
-          );
-
-        const tax =
-          subtotal * 0.05;
-
-        setCartSummary({
-          subtotal,
-          tax,
-          grand_total:
-            subtotal + tax,
-        });
-      }
-
-      else {
         setCartItems([]);
-
-        setCartSummary({
-          subtotal: 0,
-          tax: 0,
-          grand_total: 0,
-        });
       }
+
 
     } catch (error) {
 
@@ -227,19 +209,24 @@ function Cart({ onBack, onCheckout }) {
         error
       );
 
+
       setError(
         error.message ||
           "Unable to load cart"
       );
 
+
     } finally {
+
       setLoading(false);
     }
   };
 
 
   useEffect(() => {
+
     loadCart();
+
   }, []);
 
 
@@ -247,109 +234,290 @@ function Cart({ onBack, onCheckout }) {
   // INCREASE QUANTITY
   // ============================================================
 
-  const increaseQuantity = async (
-    item
-  ) => {
-    try {
-      setError("");
+  const increaseQuantity =
+    async (item) => {
 
-      await api.updateCart(
-        item.id,
-        Number(item.quantity) + 1,
-        token
-      );
+      try {
 
-      // Reload backend calculations
-      await loadCart();
+        setError("");
 
-    } catch (error) {
 
-      console.error(
-        "Increase quantity error:",
-        error
-      );
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
 
-      setError(
-        error.message ||
-          "Unable to update quantity"
-      );
-    }
-  };
+
+        if (!token) {
+
+          throw new Error(
+            "Please login again."
+          );
+        }
+
+
+        const updatedItem =
+          await api.updateCart(
+            item.id,
+            Number(
+              item.quantity
+            ) + 1,
+            token
+          );
+
+
+        setCartItems(
+          (current) =>
+            current.map(
+              (cartItem) =>
+                cartItem.id ===
+                item.id
+                  ? updatedItem
+                  : cartItem
+            )
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Increase quantity error:",
+          error
+        );
+
+
+        setError(
+          error.message ||
+            "Unable to update quantity"
+        );
+      }
+    };
 
 
   // ============================================================
   // DECREASE QUANTITY
   // ============================================================
 
-  const decreaseQuantity = async (
-    item
-  ) => {
+  const decreaseQuantity =
+    async (item) => {
 
-    const quantity =
-      Number(item.quantity);
+      const quantity =
+        Number(
+          item.quantity
+        );
 
-    if (quantity <= 1) {
-      return;
-    }
 
-    try {
-      setError("");
+      if (
+        quantity <= 1
+      ) {
+        return;
+      }
 
-      await api.updateCart(
-        item.id,
-        quantity - 1,
-        token
-      );
 
-      // Reload backend calculations
-      await loadCart();
+      try {
 
-    } catch (error) {
+        setError("");
 
-      console.error(
-        "Decrease quantity error:",
-        error
-      );
 
-      setError(
-        error.message ||
-          "Unable to update quantity"
-      );
-    }
-  };
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+
+        if (!token) {
+
+          throw new Error(
+            "Please login again."
+          );
+        }
+
+
+        const updatedItem =
+          await api.updateCart(
+            item.id,
+            quantity - 1,
+            token
+          );
+
+
+        setCartItems(
+          (current) =>
+            current.map(
+              (cartItem) =>
+                cartItem.id ===
+                item.id
+                  ? updatedItem
+                  : cartItem
+            )
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Decrease quantity error:",
+          error
+        );
+
+
+        setError(
+          error.message ||
+            "Unable to update quantity"
+        );
+      }
+    };
 
 
   // ============================================================
   // REMOVE ITEM
   // ============================================================
 
-  const removeItem = async (
-    cartId
-  ) => {
-    try {
-      setError("");
+  const removeItem =
+    async (cartId) => {
 
-      await api.deleteCart(
-        cartId,
-        token
-      );
+      try {
 
-      // Reload backend calculations
-      await loadCart();
+        setError("");
 
-    } catch (error) {
 
-      console.error(
-        "Remove cart error:",
-        error
-      );
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
 
-      setError(
-        error.message ||
-          "Unable to remove item"
-      );
-    }
-  };
+
+        if (!token) {
+
+          throw new Error(
+            "Please login again."
+          );
+        }
+
+
+        await api.deleteCart(
+          cartId,
+          token
+        );
+
+
+        setCartItems(
+          (current) =>
+            current.filter(
+              (item) =>
+                item.id !== cartId
+            )
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Remove cart error:",
+          error
+        );
+
+
+        setError(
+          error.message ||
+            "Unable to remove item"
+        );
+      }
+    };
+
+
+  // ============================================================
+  // CREATE STRIPE CHECKOUT
+  // ============================================================
+
+  const handleCheckout =
+    async () => {
+
+      try {
+
+        setError(
+          ""
+        );
+
+        setCheckoutLoading(
+          true
+        );
+
+
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+
+        if (!token) {
+
+          throw new Error(
+            "Your session has expired. Please login again."
+          );
+        }
+
+
+        if (
+          cartItems.length === 0
+        ) {
+
+          throw new Error(
+            "Your cart is empty."
+          );
+        }
+
+
+        console.log(
+          "Creating checkout..."
+        );
+
+
+        const data =
+          await api.createCheckout(
+            token
+          );
+
+
+        console.log(
+          "Checkout response:",
+          data
+        );
+
+
+        if (
+          !data?.checkout_url
+        ) {
+
+          throw new Error(
+            "Stripe checkout URL was not returned."
+          );
+        }
+
+
+        window.location.href =
+          data.checkout_url;
+
+
+      } catch (error) {
+
+        console.error(
+          "Checkout error:",
+          error
+        );
+
+
+        setError(
+          error.message ||
+            "Unable to start checkout."
+        );
+
+
+        setCheckoutLoading(
+          false
+        );
+      }
+    };
 
 
   // ============================================================
@@ -368,15 +536,52 @@ function Cart({ onBack, onCheckout }) {
 
 
   // ============================================================
+  // TOTAL PRICE
+  // ============================================================
+
+  const total =
+    cartItems.reduce(
+      (sum, item) => {
+
+        const price =
+          Number(
+            item.product?.price ||
+              0
+          );
+
+
+        const quantity =
+          Number(
+            item.quantity ||
+              0
+          );
+
+
+        return (
+          sum +
+          price * quantity
+        );
+      },
+      0
+    );
+
+
+  // ============================================================
   // LOADING
   // ============================================================
 
   if (loading) {
+
     return (
+
       <div className="cart-page">
+
         <div className="cart-loading">
+
           Loading your cart...
+
         </div>
+
       </div>
     );
   }
@@ -387,7 +592,9 @@ function Cart({ onBack, onCheckout }) {
   // ============================================================
 
   return (
+
     <div className="cart-page">
+
 
       {/* ======================================================
           HEADER
@@ -403,15 +610,20 @@ function Cart({ onBack, onCheckout }) {
           ← Continue Shopping
         </button>
 
+
         <h1>
           🛒 My Cart
         </h1>
 
+
         <p>
+
           {totalQuantity}{" "}
+
           {totalQuantity === 1
             ? "item"
             : "items"}
+
         </p>
 
       </div>
@@ -422,9 +634,13 @@ function Cart({ onBack, onCheckout }) {
       ====================================================== */}
 
       {error && (
+
         <div className="error-message">
+
           ⚠️ {error}
+
         </div>
+
       )}
 
 
@@ -440,14 +656,17 @@ function Cart({ onBack, onCheckout }) {
             🛒
           </div>
 
+
           <h2>
             Your cart is empty
           </h2>
+
 
           <p>
             Add some products to
             your cart.
           </p>
+
 
           <button
             type="button"
@@ -461,7 +680,13 @@ function Cart({ onBack, onCheckout }) {
 
       ) : (
 
+
+        /* ====================================================
+           CART CONTENT
+        ==================================================== */
+
         <div className="cart-layout">
+
 
           {/* ==================================================
               CART ITEMS
@@ -475,11 +700,13 @@ function Cart({ onBack, onCheckout }) {
                 const product =
                   item.product;
 
+
                 const price =
                   Number(
                     product?.price ||
                       0
                   );
+
 
                 const quantity =
                   Number(
@@ -487,84 +714,96 @@ function Cart({ onBack, onCheckout }) {
                       0
                   );
 
-                const itemTotal =
-                  Number(
-                    item.item_total ||
-                      price * quantity
-                  );
 
-                const productImage =
+                const subtotal =
+                  price * quantity;
+
+
+                const imageUrl =
                   getProductImage(
                     product
                   );
 
 
                 return (
+
                   <div
                     className="cart-item"
                     key={item.id}
                   >
 
-                    {/* PRODUCT IMAGE */}
+
+                    {/* ==================================================
+                        PRODUCT IMAGE
+                    ================================================== */}
 
                     <div className="cart-product-image">
 
                       <img
-                        src={
-                          productImage
-                        }
+                        src={imageUrl}
                         alt={
                           product?.name ||
                           "Product"
                         }
+
                         loading="lazy"
+
                         onError={(
                           event
                         ) => {
 
                           if (
-                            event
-                              .currentTarget
-                              .src !==
+                            event.currentTarget.src !==
                             FALLBACK_IMAGE
                           ) {
-                            event
-                              .currentTarget
-                              .src =
-                              FALLBACK_IMAGE;
-                          }
 
+                            event.currentTarget.src =
+                              FALLBACK_IMAGE;
+
+                          }
                         }}
                       />
 
                     </div>
 
 
-                    {/* PRODUCT DETAILS */}
+                    {/* ==================================================
+                        PRODUCT DETAILS
+                    ================================================== */}
 
                     <div className="cart-product-info">
 
                       <h2>
+
                         {product?.name ||
                           "Product"}
+
                       </h2>
 
+
                       <p>
+
                         {product?.description ||
                           "No description available"}
+
                       </p>
 
+
                       <strong>
+
                         ₹
                         {price.toLocaleString(
                           "en-IN"
                         )}
+
                       </strong>
 
                     </div>
 
 
-                    {/* QUANTITY */}
+                    {/* ==================================================
+                        QUANTITY
+                    ================================================== */}
 
                     <div className="quantity-control">
 
@@ -575,16 +814,20 @@ function Cart({ onBack, onCheckout }) {
                             item
                           )
                         }
+
                         disabled={
-                          quantity <= 1
+                          quantity <= 1 ||
+                          checkoutLoading
                         }
                       >
                         −
                       </button>
 
+
                       <span>
                         {quantity}
                       </span>
+
 
                       <button
                         type="button"
@@ -593,6 +836,10 @@ function Cart({ onBack, onCheckout }) {
                             item
                           )
                         }
+
+                        disabled={
+                          checkoutLoading
+                        }
                       >
                         +
                       </button>
@@ -600,29 +847,43 @@ function Cart({ onBack, onCheckout }) {
                     </div>
 
 
-                    {/* ITEM TOTAL */}
+                    {/* ==================================================
+                        SUBTOTAL
+                    ================================================== */}
 
                     <div className="cart-subtotal">
+
                       ₹
-                      {itemTotal.toLocaleString(
+                      {subtotal.toLocaleString(
                         "en-IN"
                       )}
+
                     </div>
 
 
-                    {/* REMOVE */}
+                    {/* ==================================================
+                        REMOVE
+                    ================================================== */}
 
                     <button
                       type="button"
                       className="remove-btn"
+
                       onClick={() =>
                         removeItem(
                           item.id
                         )
                       }
+
+                      disabled={
+                        checkoutLoading
+                      }
                     >
+
                       🗑 Remove
+
                     </button>
+
 
                   </div>
                 );
@@ -638,6 +899,7 @@ function Cart({ onBack, onCheckout }) {
 
           <div className="cart-summary">
 
+
             <h2>
               Order Summary
             </h2>
@@ -650,6 +912,7 @@ function Cart({ onBack, onCheckout }) {
               <span>
                 Items
               </span>
+
 
               <span>
                 {totalQuantity}
@@ -666,37 +929,14 @@ function Cart({ onBack, onCheckout }) {
                 Subtotal
               </span>
 
+
               <span>
+
                 ₹
-                {cartSummary.subtotal.toLocaleString(
-                  "en-IN",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                {total.toLocaleString(
+                  "en-IN"
                 )}
-              </span>
 
-            </div>
-
-
-            {/* TAX */}
-
-            <div className="summary-row">
-
-              <span>
-                Tax (5%)
-              </span>
-
-              <span>
-                ₹
-                {cartSummary.tax.toLocaleString(
-                  "en-IN",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
-                )}
               </span>
 
             </div>
@@ -710,6 +950,7 @@ function Cart({ onBack, onCheckout }) {
                 Delivery
               </span>
 
+
               <span>
                 FREE
               </span>
@@ -720,56 +961,49 @@ function Cart({ onBack, onCheckout }) {
             <hr />
 
 
-            {/* GRAND TOTAL */}
+            {/* TOTAL */}
 
             <div className="total-row">
 
               <span>
-                Grand Total
+                Total
               </span>
 
+
               <span>
+
                 ₹
-                {cartSummary.grand_total.toLocaleString(
-                  "en-IN",
-                  {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  }
+                {total.toLocaleString(
+                  "en-IN"
                 )}
+
               </span>
 
             </div>
 
 
-            {/* CHECKOUT */}
+            {/* ==================================================
+                CHECKOUT
+            ================================================== */}
 
             <button
               type="button"
               className="checkout-btn"
-              onClick={() => {
 
-                if (
-                  cartItems.length === 0
-                ) {
-                  setError(
-                    "Your cart is empty."
-                  );
-                  return;
-                }
+              onClick={
+                handleCheckout
+              }
 
-                if (!token) {
-                  setError(
-                    "Your session has expired. Please login again."
-                  );
-                  return;
-                }
-
-                onCheckout();
-
-              }}
+              disabled={
+                checkoutLoading ||
+                cartItems.length === 0
+              }
             >
-              Proceed to Checkout
+
+              {checkoutLoading
+                ? "Preparing Checkout..."
+                : "Proceed to Checkout"}
+
             </button>
 
           </div>

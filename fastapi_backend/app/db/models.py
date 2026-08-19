@@ -118,11 +118,15 @@ class Product(Base):
         nullable=True,
     )
 
-    # Relationship with order items
+    # --------------------------------------------------------
+    # Relationship with OrderItem
+    # --------------------------------------------------------
+
     order_items = relationship(
         "OrderItem",
         back_populates="product",
     )
+
 
 # ============================================================
 # CART
@@ -185,12 +189,41 @@ class Order(Base):
         index=True,
     )
 
+    # --------------------------------------------------------
+    # Total amount including tax
+    # --------------------------------------------------------
+
     total_amount = Column(
         DECIMAL(10, 2),
         nullable=False,
     )
 
-    status = Column(
+    # --------------------------------------------------------
+    # Payment status
+    # --------------------------------------------------------
+    # pending
+    # paid
+    # failed
+    # refunded
+    # --------------------------------------------------------
+
+    payment_status = Column(
+        String(30),
+        nullable=False,
+        default="pending",
+    )
+
+    # --------------------------------------------------------
+    # Order status
+    # --------------------------------------------------------
+    # pending
+    # paid
+    # shipped
+    # delivered
+    # cancelled
+    # --------------------------------------------------------
+
+    order_status = Column(
         String(30),
         nullable=False,
         default="pending",
@@ -218,6 +251,17 @@ class Order(Base):
     items = relationship(
         "OrderItem",
         back_populates="order",
+        cascade="all, delete-orphan",
+    )
+
+    # --------------------------------------------------------
+    # Payment relationship
+    # --------------------------------------------------------
+
+    payment = relationship(
+        "Payment",
+        back_populates="order",
+        uselist=False,
         cascade="all, delete-orphan",
     )
 
@@ -285,4 +329,94 @@ class OrderItem(Base):
     product = relationship(
         "Product",
         back_populates="order_items",
+    )
+
+
+# ============================================================
+# PAYMENT
+# ============================================================
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
+
+    # --------------------------------------------------------
+    # Order reference
+    # --------------------------------------------------------
+
+    order_id = Column(
+        Integer,
+        ForeignKey("orders.id"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    # --------------------------------------------------------
+    # Payment amount
+    # --------------------------------------------------------
+
+    amount = Column(
+        DECIMAL(10, 2),
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Payment method
+    # --------------------------------------------------------
+
+    payment_method = Column(
+        String(50),
+        nullable=False,
+        default="stripe",
+    )
+
+    # --------------------------------------------------------
+    # Stripe transaction/session/payment ID
+    # --------------------------------------------------------
+
+    transaction_id = Column(
+        String(255),
+        nullable=True,
+        unique=True,
+    )
+
+    # --------------------------------------------------------
+    # Payment status
+    # --------------------------------------------------------
+    # pending
+    # paid
+    # failed
+    # refunded
+    # --------------------------------------------------------
+
+    status = Column(
+        String(30),
+        nullable=False,
+        default="pending",
+    )
+
+    # --------------------------------------------------------
+    # Timestamp
+    # --------------------------------------------------------
+
+    timestamp = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+    )
+
+    # --------------------------------------------------------
+    # Order relationship
+    # --------------------------------------------------------
+
+    order = relationship(
+        "Order",
+        back_populates="payment",
     )

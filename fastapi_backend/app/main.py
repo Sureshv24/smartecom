@@ -1,20 +1,33 @@
+from dotenv import load_dotenv
+
+load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.db.database import engine, Base
 from app.db import models
+
 from app.auth.router import router as auth_router
 from app.products.router import router as product_router
 from app.cart.router import router as cart_router
-from app.core.config import JWT_SECRET_KEY
 from app.orders.router import router as order_router
+from app.checkout.router import router as checkout_router
 
-# Create database tables
+from app.core.config import JWT_SECRET_KEY
+
+
+# ============================================================
+# CREATE DATABASE TABLES
+# ============================================================
+
 Base.metadata.create_all(bind=engine)
 
 
-# Create FastAPI application
+# ============================================================
+# CREATE FASTAPI APPLICATION
+# ============================================================
+
 app = FastAPI(
     title="Smart E-Commerce Platform API",
     version="1.0.0"
@@ -40,7 +53,7 @@ app.add_middleware(
 
 
 # ============================================================
-# Session middleware for Auth0 OAuth
+# SESSION MIDDLEWARE FOR AUTH0
 # ============================================================
 
 app.add_middleware(
@@ -50,21 +63,42 @@ app.add_middleware(
 
 
 # ============================================================
-# Routes
+# ROUTES
 # ============================================================
 
-app.include_router(auth_router)
-app.include_router(product_router)
-app.include_router(cart_router)
-app.include_router(order_router)
+app.include_router(
+    auth_router
+)
+
+app.include_router(
+    product_router
+)
+
+app.include_router(
+    cart_router
+)
+
+app.include_router(
+    order_router
+)
+
+# ------------------------------------------------------------
+# CHECKOUT ROUTER
+# POST /checkout
+# ------------------------------------------------------------
+
+app.include_router(
+    checkout_router
+)
 
 
 # ============================================================
-# Root
+# ROOT
 # ============================================================
 
 @app.get("/")
 def root():
     return {
-        "message": "Smart E-Commerce Platform API is running"
+        "message":
+        "Smart E-Commerce Platform API is running"
     }

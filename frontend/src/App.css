@@ -2439,3 +2439,58 @@ html { scroll-behavior: smooth; }
     font-size: 13px !important;
   }
 }
+/* =========================================================
+   CART PRODUCT FIX
+========================================================= */
+
+.cart-product-info h2 {
+  margin: 0 0 7px !important;
+  color: #111827 !important;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+}
+
+.cart-product-info p {
+  margin: 0 0 10px !important;
+  color: #64748b !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.cart-product-info strong {
+  color: #2563eb !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+
+.cart-product-image {
+  width: 110px !important;
+  height: 110px !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  background: #f1f5f9 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cart-product-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f1f5f9;
+  font-size: 38px;
+}

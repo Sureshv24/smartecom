@@ -16,14 +16,18 @@ const getRefreshToken = () => {
 
 
 const saveTokens = (data) => {
+
   if (data?.access_token) {
+
     localStorage.setItem(
       "access_token",
       data.access_token
     );
   }
 
+
   if (data?.refresh_token) {
+
     localStorage.setItem(
       "refresh_token",
       data.refresh_token
@@ -33,8 +37,14 @@ const saveTokens = (data) => {
 
 
 const clearTokens = () => {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+
+  localStorage.removeItem(
+    "access_token"
+  );
+
+  localStorage.removeItem(
+    "refresh_token"
+  );
 };
 
 
@@ -44,33 +54,45 @@ const clearTokens = () => {
 // ============================================================
 
 const refreshAccessToken = async () => {
+
   const refreshToken =
     getRefreshToken();
 
+
   if (!refreshToken) {
+
     throw new Error(
       "Refresh token not available"
     );
   }
 
+
   try {
+
     const response = await fetch(
       `${API_URL}/auth/refresh`,
       {
         method: "POST",
+
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type":
+            "application/json",
         },
+
         body: JSON.stringify({
-          refresh_token: refreshToken,
+          refresh_token:
+            refreshToken,
         }),
       }
     );
 
+
     const data =
       await response.json();
 
+
     if (!response.ok) {
+
       clearTokens();
 
       throw new Error(
@@ -79,9 +101,12 @@ const refreshAccessToken = async () => {
       );
     }
 
+
     saveTokens(data);
 
+
     return data.access_token;
+
 
   } catch (error) {
 
@@ -90,7 +115,9 @@ const refreshAccessToken = async () => {
       error
     );
 
+
     clearTokens();
+
 
     throw new Error(
       error.message ||
@@ -102,7 +129,6 @@ const refreshAccessToken = async () => {
 
 // ============================================================
 // AUTHENTICATED FETCH
-//
 // Automatically refreshes expired access token once.
 // ============================================================
 
@@ -115,7 +141,9 @@ const authenticatedFetch = async (
   let token =
     getAccessToken();
 
+
   if (!token) {
+
     throw new Error(
       "Please login again."
     );
@@ -127,12 +155,16 @@ const authenticatedFetch = async (
   // ----------------------------------------------------------
 
   const headers = {
+
     ...(options.headers || {}),
-    Authorization: `Bearer ${token}`,
+
+    Authorization:
+      `Bearer ${token}`,
   };
 
 
   let response;
+
 
   try {
 
@@ -144,6 +176,7 @@ const authenticatedFetch = async (
       }
     );
 
+
   } catch (error) {
 
     console.error(
@@ -151,14 +184,17 @@ const authenticatedFetch = async (
       error
     );
 
+
     if (
       error.message ===
       "Failed to fetch"
     ) {
+
       throw new Error(
         "Unable to connect to FastAPI"
       );
     }
+
 
     throw error;
   }
@@ -185,7 +221,9 @@ const authenticatedFetch = async (
 
 
       const retryHeaders = {
+
         ...(options.headers || {}),
+
         Authorization:
           `Bearer ${newAccessToken}`,
       };
@@ -200,9 +238,11 @@ const authenticatedFetch = async (
         url,
         {
           ...options,
-          headers: retryHeaders,
+          headers:
+            retryHeaders,
         }
       );
+
 
     } catch (refreshError) {
 
@@ -210,6 +250,7 @@ const authenticatedFetch = async (
         "Token refresh failed:",
         refreshError
       );
+
 
       throw refreshError;
     }
@@ -230,12 +271,15 @@ const parseResponse = async (
 
   let data = null;
 
+
   try {
 
     data =
       await response.json();
 
+
   } catch {
+
     data = null;
   }
 
@@ -258,6 +302,7 @@ const parseResponse = async (
 // ============================================================
 
 export const api = {
+
 
   // ==========================================================
   // REGISTER
@@ -302,6 +347,7 @@ export const api = {
 
 
       return data;
+
 
     } catch (error) {
 
@@ -378,6 +424,7 @@ export const api = {
 
       return data;
 
+
     } catch (error) {
 
       console.error(
@@ -429,6 +476,7 @@ export const api = {
 
     let response;
 
+
     try {
 
       response =
@@ -444,12 +492,14 @@ export const api = {
           }
         );
 
+
     } catch (error) {
 
       console.error(
         "Get user error:",
         error
       );
+
 
       throw new Error(
         "Unable to connect to FastAPI"
@@ -673,11 +723,37 @@ export const api = {
 
 
     // 204 No Content
+
     if (
       response.status === 204
     ) {
+
       return true;
     }
+
+
+    return parseResponse(
+      response
+    );
+  },
+
+
+  // ==========================================================
+  // CREATE CHECKOUT
+  // POST /checkout
+  // ==========================================================
+
+  createCheckout: async (
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/checkout`,
+        {
+          method: "POST",
+        }
+      );
 
 
     return parseResponse(
@@ -854,4 +930,6 @@ export const api = {
       response
     );
   },
+
+
 };
