@@ -6,12 +6,16 @@ const API_URL = "http://127.0.0.1:8000";
 // ============================================================
 
 const getAccessToken = () => {
-  return localStorage.getItem("access_token");
+  return localStorage.getItem(
+    "access_token"
+  );
 };
 
 
 const getRefreshToken = () => {
-  return localStorage.getItem("refresh_token");
+  return localStorage.getItem(
+    "refresh_token"
+  );
 };
 
 
@@ -23,6 +27,7 @@ const saveTokens = (data) => {
       "access_token",
       data.access_token
     );
+
   }
 
 
@@ -32,7 +37,9 @@ const saveTokens = (data) => {
       "refresh_token",
       data.refresh_token
     );
+
   }
+
 };
 
 
@@ -45,6 +52,7 @@ const clearTokens = () => {
   localStorage.removeItem(
     "refresh_token"
   );
+
 };
 
 
@@ -64,6 +72,7 @@ const refreshAccessToken = async () => {
     throw new Error(
       "Refresh token not available"
     );
+
   }
 
 
@@ -99,6 +108,7 @@ const refreshAccessToken = async () => {
         data.detail ||
           "Session expired. Please login again."
       );
+
     }
 
 
@@ -123,7 +133,9 @@ const refreshAccessToken = async () => {
       error.message ||
         "Session expired. Please login again."
     );
+
   }
+
 };
 
 
@@ -147,6 +159,7 @@ const authenticatedFetch = async (
     throw new Error(
       "Please login again."
     );
+
   }
 
 
@@ -160,6 +173,7 @@ const authenticatedFetch = async (
 
     Authorization:
       `Bearer ${token}`,
+
   };
 
 
@@ -193,10 +207,12 @@ const authenticatedFetch = async (
       throw new Error(
         "Unable to connect to FastAPI"
       );
+
     }
 
 
     throw error;
+
   }
 
 
@@ -226,6 +242,7 @@ const authenticatedFetch = async (
 
         Authorization:
           `Bearer ${newAccessToken}`,
+
       };
 
 
@@ -253,11 +270,14 @@ const authenticatedFetch = async (
 
 
       throw refreshError;
+
     }
+
   }
 
 
   return response;
+
 };
 
 
@@ -281,6 +301,7 @@ const parseResponse = async (
   } catch {
 
     data = null;
+
   }
 
 
@@ -290,10 +311,12 @@ const parseResponse = async (
       data?.detail ||
         `Request failed with status ${response.status}`
     );
+
   }
 
 
   return data;
+
 };
 
 
@@ -343,6 +366,7 @@ export const api = {
           data.detail ||
             "Registration failed"
         );
+
       }
 
 
@@ -365,11 +389,14 @@ export const api = {
         throw new Error(
           "Unable to connect to FastAPI"
         );
+
       }
 
 
       throw error;
+
     }
+
   },
 
 
@@ -412,6 +439,7 @@ export const api = {
           data.detail ||
             "Login failed"
         );
+
       }
 
 
@@ -441,11 +469,14 @@ export const api = {
         throw new Error(
           "Unable to connect to FastAPI"
         );
+
       }
 
 
       throw error;
+
     }
+
   },
 
 
@@ -471,6 +502,7 @@ export const api = {
       throw new Error(
         "Please login again."
       );
+
     }
 
 
@@ -504,6 +536,7 @@ export const api = {
       throw new Error(
         "Unable to connect to FastAPI"
       );
+
     }
 
 
@@ -531,12 +564,14 @@ export const api = {
             },
           }
         );
+
     }
 
 
     return parseResponse(
       response
     );
+
   },
 
 
@@ -559,6 +594,7 @@ export const api = {
       throw new Error(
         "Please login again."
       );
+
     }
 
 
@@ -574,6 +610,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -599,6 +636,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -639,6 +677,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -663,6 +702,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -700,6 +740,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -729,12 +770,14 @@ export const api = {
     ) {
 
       return true;
+
     }
 
 
     return parseResponse(
       response
     );
+
   },
 
 
@@ -759,6 +802,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -795,6 +839,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -819,6 +864,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -844,6 +890,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -869,6 +916,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -904,6 +952,7 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
 
@@ -929,7 +978,70 @@ export const api = {
     return parseResponse(
       response
     );
+
   },
 
+
+  // ==========================================================
+  // GET NOTIFICATIONS
+  // GET /notifications
+  // ==========================================================
+
+  getNotifications: async (
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/notifications`,
+        {
+          method: "GET",
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
+  // MARK NOTIFICATION AS READ
+  // POST /notifications/read
+  // ==========================================================
+
+  markNotificationRead: async (
+    notificationId,
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/notifications/read`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body:
+            JSON.stringify({
+              notification_id:
+                notificationId,
+            }),
+
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
 
 };

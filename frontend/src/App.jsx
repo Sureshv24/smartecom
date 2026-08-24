@@ -23,6 +23,17 @@ function App() {
 
 
   // ============================================================
+  // NOTIFICATION STATE
+  // ============================================================
+
+  const [notifications, setNotifications] =
+    useState([]);
+
+  const [showNotifications, setShowNotifications] =
+    useState(false);
+
+
+  // ============================================================
   // PAGE NAVIGATION
   // ============================================================
 
@@ -98,6 +109,205 @@ function App() {
 
 
   // ============================================================
+  // RESTORE FASTAPI USER AFTER PAGE REDIRECT
+  // ============================================================
+
+  useEffect(() => {
+
+    const restoreUser = async () => {
+
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
+      if (!token) {
+        return;
+      }
+
+      try {
+
+        const userData =
+          await api.getMe(token);
+
+        if (userData?.email) {
+
+          setUser(userData);
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Session restore error:",
+          error
+        );
+
+      }
+    };
+
+
+    restoreUser();
+
+  }, []);
+
+
+  // ============================================================
+  // LOAD NOTIFICATIONS
+  // ============================================================
+
+  useEffect(() => {
+
+    if (!user) {
+      return;
+    }
+
+
+    const loadNotifications =
+      async () => {
+
+        try {
+
+          const token =
+            localStorage.getItem(
+              "access_token"
+            );
+
+
+          if (!token) {
+            return;
+          }
+
+
+          const data =
+            await api.getNotifications(
+              token
+            );
+
+
+          if (Array.isArray(data)) {
+
+            setNotifications(data);
+
+          } else if (
+            Array.isArray(
+              data?.notifications
+            )
+          ) {
+
+            setNotifications(
+              data.notifications
+            );
+
+          } else {
+
+            setNotifications([]);
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Notification loading error:",
+            error
+          );
+
+        }
+
+      };
+
+
+    // Load immediately
+    loadNotifications();
+
+
+    // Refresh every 5 seconds
+    const interval =
+      setInterval(
+        loadNotifications,
+        5000
+      );
+
+
+    return () => {
+      clearInterval(interval);
+    };
+
+  }, [user]);
+
+
+  // ============================================================
+  // UNREAD NOTIFICATION COUNT
+  // ============================================================
+
+  const unreadCount =
+    notifications.filter(
+      (notification) =>
+        notification.read_status !==
+        "read"
+    ).length;
+
+
+  // ============================================================
+  // MARK NOTIFICATION AS READ
+  // ============================================================
+
+  const handleNotificationClick =
+    async (notification) => {
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "access_token"
+          );
+
+
+        if (!token) {
+          return;
+        }
+
+
+        if (
+          notification.read_status !==
+          "read"
+        ) {
+
+          await api.markNotificationRead(
+            notification.id,
+            token
+          );
+
+
+          setNotifications(
+            (current) =>
+              current.map(
+                (item) =>
+                  item.id ===
+                  notification.id
+                    ? {
+                        ...item,
+                        read_status:
+                          "read",
+                      }
+                    : item
+              )
+          );
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Mark notification error:",
+          error
+        );
+
+      }
+
+    };
+
+
+  // ============================================================
   // EMAIL / PASSWORD LOGIN
   // ============================================================
 
@@ -105,19 +315,25 @@ function App() {
 
     e.preventDefault();
 
-    setMessage("Logging in...");
+    setMessage(
+      "Logging in..."
+    );
+
     setUser(null);
 
 
     try {
 
-      const data = await api.login({
-        email,
-        password,
-      });
+      const data =
+        await api.login({
+          email,
+          password,
+        });
 
 
-      if (!data.access_token) {
+      if (
+        !data.access_token
+      ) {
 
         setMessage(
           data.detail ||
@@ -142,12 +358,15 @@ function App() {
       // STORE REFRESH TOKEN
       // --------------------------------------------------------
 
-      if (data.refresh_token) {
+      if (
+        data.refresh_token
+      ) {
 
         localStorage.setItem(
           "refresh_token",
           data.refresh_token
         );
+
       }
 
 
@@ -161,9 +380,13 @@ function App() {
         );
 
 
-      if (userData?.email) {
+      if (
+        userData?.email
+      ) {
 
-        setUser(userData);
+        setUser(
+          userData
+        );
 
         setMessage(
           "Login successful! ✅"
@@ -174,7 +397,9 @@ function App() {
         setMessage(
           "Token received, but user details could not be loaded."
         );
+
       }
+
 
     } catch (error) {
 
@@ -188,6 +413,7 @@ function App() {
         error.message ||
         "Unable to connect to FastAPI ❌"
       );
+
     }
   };
 
@@ -196,74 +422,80 @@ function App() {
   // GOOGLE LOGIN
   // ============================================================
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin =
+    async () => {
 
-    try {
+      try {
 
-      setMessage(
-        "Redirecting to Google..."
-      );
-
-
-      await loginWithRedirect({
-
-        authorizationParams: {
-          connection:
-            "google-oauth2",
-        },
-
-      });
-
-    } catch (error) {
-
-      console.error(
-        "Google login error:",
-        error
-      );
+        setMessage(
+          "Redirecting to Google..."
+        );
 
 
-      setMessage(
-        "Unable to start Google login ❌"
-      );
-    }
-  };
+        await loginWithRedirect({
+
+          authorizationParams: {
+            connection:
+              "google-oauth2",
+          },
+
+        });
+
+      } catch (error) {
+
+        console.error(
+          "Google login error:",
+          error
+        );
+
+
+        setMessage(
+          "Unable to start Google login ❌"
+        );
+
+      }
+
+    };
 
 
   // ============================================================
   // FACEBOOK LOGIN
   // ============================================================
 
-  const handleFacebookLogin = async () => {
+  const handleFacebookLogin =
+    async () => {
 
-    try {
+      try {
 
-      setMessage(
-        "Redirecting to Facebook..."
-      );
-
-
-      await loginWithRedirect({
-
-        authorizationParams: {
-          connection:
-            "facebook",
-        },
-
-      });
-
-    } catch (error) {
-
-      console.error(
-        "Facebook login error:",
-        error
-      );
+        setMessage(
+          "Redirecting to Facebook..."
+        );
 
 
-      setMessage(
-        "Unable to start Facebook login ❌"
-      );
-    }
-  };
+        await loginWithRedirect({
+
+          authorizationParams: {
+            connection:
+              "facebook",
+          },
+
+        });
+
+      } catch (error) {
+
+        console.error(
+          "Facebook login error:",
+          error
+        );
+
+
+        setMessage(
+          "Unable to start Facebook login ❌"
+        );
+
+      }
+
+    };
 
 
   // ============================================================
@@ -286,12 +518,21 @@ function App() {
 
 
     setUser(null);
+
     setEmail("");
+
     setPassword("");
+
     setMessage("");
 
+    setNotifications([]);
+
+    setShowNotifications(false);
+
     setShowCart(false);
+
     setShowPaymentMethod(false);
+
     setShowAllProducts(false);
 
 
@@ -305,7 +546,9 @@ function App() {
         },
 
       });
+
     }
+
   };
 
 
@@ -334,7 +577,9 @@ function App() {
         </div>
 
       </div>
+
     );
+
   }
 
 
@@ -355,6 +600,7 @@ function App() {
           setShowPaymentMethod(false)
         }
 
+
         onContinue={async (
           paymentMethod
         ) => {
@@ -372,6 +618,7 @@ function App() {
               throw new Error(
                 "Please login again."
               );
+
             }
 
 
@@ -393,7 +640,8 @@ function App() {
             // ------------------------------------------------
 
             if (
-              paymentMethod === "cod"
+              paymentMethod ===
+              "cod"
             ) {
 
               alert(
@@ -401,10 +649,16 @@ function App() {
               );
 
 
-              setShowPaymentMethod(false);
-              setShowCart(false);
+              setShowPaymentMethod(
+                false
+              );
+
+              setShowCart(
+                false
+              );
 
               return;
+
             }
 
 
@@ -413,7 +667,8 @@ function App() {
             // ------------------------------------------------
 
             if (
-              paymentMethod === "gpay"
+              paymentMethod ===
+              "gpay"
             ) {
 
               alert(
@@ -421,8 +676,14 @@ function App() {
               );
 
 
-              setShowPaymentMethod(false);
-              setShowCart(false);
+              setShowPaymentMethod(
+                false
+              );
+
+              setShowCart(
+                false
+              );
+
             }
 
           } catch (error) {
@@ -437,12 +698,15 @@ function App() {
               error.message ||
               "Unable to process checkout."
             );
+
           }
 
         }}
 
       />
+
     );
+
   }
 
 
@@ -463,12 +727,17 @@ function App() {
           setShowCart(false)
         }
 
+
         onCheckout={() =>
-          setShowPaymentMethod(true)
+          setShowPaymentMethod(
+            true
+          )
         }
 
       />
+
     );
+
   }
 
 
@@ -487,7 +756,6 @@ function App() {
 
           {/* ==================================================
               TOP BRAND ROW
-              LOGO LEFT + SMART E-COMMERCE RIGHT
           ================================================== */}
 
           <div className="login-brand-row">
@@ -557,15 +825,12 @@ function App() {
               <input
                 type="email"
                 placeholder="Enter your email"
-
                 value={email}
-
                 onChange={(e) =>
                   setEmail(
                     e.target.value
                   )
                 }
-
                 required
               />
 
@@ -581,15 +846,12 @@ function App() {
               <input
                 type="password"
                 placeholder="Enter your password"
-
                 value={password}
-
                 onChange={(e) =>
                   setPassword(
                     e.target.value
                   )
                 }
-
                 required
               />
 
@@ -600,7 +862,9 @@ function App() {
               type="submit"
               className="primary-auth-btn"
             >
+
               Login
+
             </button>
 
           </form>
@@ -626,7 +890,6 @@ function App() {
           <button
             type="button"
             className="social-login google-login"
-
             onClick={
               handleGoogleLogin
             }
@@ -648,7 +911,6 @@ function App() {
           <button
             type="button"
             className="social-login facebook-login"
-
             onClick={
               handleFacebookLogin
             }
@@ -675,10 +937,13 @@ function App() {
 
           )}
 
+
         </div>
 
       </div>
+
     );
+
   }
 
 
@@ -710,9 +975,17 @@ function App() {
 
               setShowCart(false);
 
-              setShowPaymentMethod(false);
+              setShowPaymentMethod(
+                false
+              );
 
-              setShowAllProducts(false);
+              setShowAllProducts(
+                false
+              );
+
+              setShowNotifications(
+                false
+              );
 
             }}
 
@@ -745,12 +1018,197 @@ function App() {
           </div>
 
 
-          {/* NAV ACTIONS */}
+          {/* ==================================================
+              NAV ACTIONS
+          ================================================== */}
 
           <div className="store-nav-actions">
 
 
-            {/* CART */}
+            {/* ==================================================
+                NOTIFICATIONS
+            ================================================== */}
+
+            <div className="notification-wrapper">
+
+              <button
+                type="button"
+                className="notification-btn"
+
+                onClick={() =>
+                  setShowNotifications(
+                    (current) =>
+                      !current
+                  )
+                }
+
+              >
+
+                🔔
+
+
+                {unreadCount > 0 && (
+
+                  <span className="notification-badge">
+
+                    {unreadCount}
+
+                  </span>
+
+                )}
+
+              </button>
+
+
+              {/* =================================================
+                  NOTIFICATION DROPDOWN
+              ================================================= */}
+
+              {showNotifications && (
+
+                <div className="notification-dropdown">
+
+
+                  {/* HEADER */}
+
+                  <div className="notification-header">
+
+                    <strong>
+                      Notifications
+                    </strong>
+
+                    <span>
+                      {notifications.length}
+                    </span>
+
+                  </div>
+
+
+                  {/* EMPTY */}
+
+                  {notifications.length ===
+                  0 ? (
+
+                    <div className="notification-empty">
+
+                      No notifications
+
+                    </div>
+
+                  ) : (
+
+                    <div className="notification-list">
+
+                      {notifications.map(
+                        (notification) => (
+
+                          <button
+                            type="button"
+                            key={
+                              notification.id
+                            }
+
+                            className={
+                              `notification-item ${
+                                notification.read_status !==
+                                "read"
+                                  ? "unread"
+                                  : ""
+                              }`
+                            }
+
+                            onClick={() =>
+                              handleNotificationClick(
+                                notification
+                              )
+                            }
+
+                          >
+
+
+                            {/* ICON */}
+
+                            <div className="notification-icon">
+
+                              {notification.type ===
+                              "payment_success"
+                                ? "✅"
+                                : notification.type ===
+                                  "payment_failed"
+                                ? "❌"
+                                : notification.type ===
+                                  "order_confirmed"
+                                ? "📦"
+                                : "🔔"}
+
+                            </div>
+
+
+                            {/* CONTENT */}
+
+                            <div className="notification-content">
+
+
+                              <strong>
+
+                                {String(
+                                  notification.type ||
+                                  "notification"
+                                )
+                                  .replaceAll(
+                                    "_",
+                                    " "
+                                  )
+                                  .replace(
+                                    /\b\w/g,
+                                    (char) =>
+                                      char.toUpperCase()
+                                  )}
+
+                              </strong>
+
+
+                              <p>
+                                {
+                                  notification.message
+                                }
+                              </p>
+
+
+                              <small>
+
+                                {notification.timestamp
+                                  ? new Date(
+                                      notification.timestamp
+                                    ).toLocaleString(
+                                      "en-IN"
+                                    )
+                                  : ""}
+
+                              </small>
+
+                            </div>
+
+
+                          </button>
+
+                        )
+                      )}
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              )}
+
+            </div>
+
+
+            {/* ==================================================
+                CART
+            ================================================== */}
 
             <button
               type="button"
@@ -771,7 +1229,9 @@ function App() {
             </button>
 
 
-            {/* USER */}
+            {/* ==================================================
+                USER
+            ================================================== */}
 
             <div className="nav-user">
 
@@ -800,7 +1260,9 @@ function App() {
             </div>
 
 
-            {/* LOGOUT */}
+            {/* ==================================================
+                LOGOUT
+            ================================================== */}
 
             <button
               type="button"
@@ -811,7 +1273,9 @@ function App() {
               }
 
             >
+
               Logout
+
             </button>
 
           </div>
@@ -955,6 +1419,7 @@ function App() {
                   ? "All Products"
                   : "Featured Collection"}
               </span>
+
 
               <h2>
                 Explore Our Products
@@ -1162,8 +1627,11 @@ function App() {
 
       </footer>
 
+
     </div>
+
   );
+
 }
 
 

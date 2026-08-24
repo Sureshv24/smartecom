@@ -31,6 +31,10 @@ from app.checkout.schemas import (
     CheckoutResponse,
 )
 
+from app.notifications.utils import (
+    create_notification,
+)
+
 
 # ============================================================
 # ROUTER
@@ -60,6 +64,7 @@ FRONTEND_URL = os.getenv(
     "http://localhost:5173",
 )
 
+# Current project tax rate
 TAX_RATE = Decimal("0.05")
 
 
@@ -92,7 +97,9 @@ def get_order(
 ):
     return (
         db.query(Order)
-        .filter(Order.id == order_id)
+        .filter(
+            Order.id == order_id
+        )
         .first()
     )
 
@@ -106,7 +113,6 @@ def mark_payment_paid(
     order_id: int,
     transaction_id: str | None = None,
 ):
-
     order = get_order(
         db,
         order_id,
@@ -115,6 +121,20 @@ def mark_payment_paid(
     if not order:
         return False
 
+
+    # --------------------------------------------------------
+    # Prevent duplicate notifications
+    # Stripe may send multiple related events.
+    # --------------------------------------------------------
+
+    already_paid = (
+        order.payment_status == "paid"
+    )
+
+
+    # --------------------------------------------------------
+    # Find payment record
+    # --------------------------------------------------------
 
     payment = (
         db.query(Payment)
@@ -125,6 +145,10 @@ def mark_payment_paid(
     )
 
 
+    # --------------------------------------------------------
+    # Update payment
+    # --------------------------------------------------------
+
     if payment:
 
         payment.status = "paid"
@@ -132,6 +156,7 @@ def mark_payment_paid(
         payment.payment_method = "stripe"
 
         if transaction_id:
+
             payment.transaction_id = (
                 transaction_id
             )
@@ -147,7 +172,7 @@ def mark_payment_paid(
 
 
     # --------------------------------------------------------
-    # Clear user's cart after successful payment
+    # Clear user's cart
     # --------------------------------------------------------
 
     db.query(Cart).filter(
@@ -155,6 +180,33 @@ def mark_payment_paid(
     ).delete(
         synchronize_session=False
     )
+
+
+    # --------------------------------------------------------
+    # Create notifications
+    # --------------------------------------------------------
+
+    if not already_paid:
+
+        create_notification(
+            db=db,
+            user_id=order.user_id,
+            notification_type="payment_success",
+            message=(
+                f"Payment successful for "
+                f"Order #{order.id}."
+            ),
+        )
+
+        create_notification(
+            db=db,
+            user_id=order.user_id,
+            notification_type="order_confirmed",
+            message=(
+                f"Order #{order.id} has been "
+                f"confirmed successfully."
+            ),
+        )
 
 
     db.commit()
@@ -171,7 +223,6 @@ def mark_payment_failed(
     order_id: int,
     transaction_id: str | None = None,
 ):
-
     order = get_order(
         db,
         order_id,
@@ -181,6 +232,19 @@ def mark_payment_failed(
         return False
 
 
+    # --------------------------------------------------------
+    # Prevent duplicate notifications
+    # --------------------------------------------------------
+
+    already_failed = (
+        order.payment_status == "failed"
+    )
+
+
+    # --------------------------------------------------------
+    # Find payment
+    # --------------------------------------------------------
+
     payment = (
         db.query(Payment)
         .filter(
@@ -189,6 +253,10 @@ def mark_payment_failed(
         .first()
     )
 
+
+    # --------------------------------------------------------
+    # Update payment
+    # --------------------------------------------------------
 
     if payment:
 
@@ -201,9 +269,30 @@ def mark_payment_failed(
             )
 
 
+    # --------------------------------------------------------
+    # Update order
+    # --------------------------------------------------------
+
     order.payment_status = "failed"
 
     order.order_status = "cancelled"
+
+
+    # --------------------------------------------------------
+    # Create notification
+    # --------------------------------------------------------
+
+    if not already_failed:
+
+        create_notification(
+            db=db,
+            user_id=order.user_id,
+            notification_type="payment_failed",
+            message=(
+                f"Payment failed for "
+                f"Order #{order.id}."
+            ),
+        )
 
 
     db.commit()
@@ -255,7 +344,7 @@ def create_checkout(
     cart_items = (
         db.query(
             Cart,
-            Product
+            Product,
         )
         .join(
             Product,
@@ -786,6 +875,23 @@ async def stripe_webhook(
 
 
     # ========================================================
+    # IMPORTANT:
+    # Stripe Python SDK returns StripeObject.
+    # Convert it into a normal Python dictionary.
+    # This fixes:
+    # AttributeError: 'get' is a dict method,
+    # but a PaymentIntent is not a dict.
+    # ========================================================
+
+    if hasattr(
+        event_data,
+        "to_dict",
+    ):
+
+        event_data = event_data.to_dict()
+
+
+    # ========================================================
     # PAYMENT INTENT SUCCEEDED
     # ========================================================
 
@@ -796,11 +902,9 @@ async def stripe_webhook(
         payment_intent = event_data
 
 
-        metadata = (
-            payment_intent.get(
-                "metadata",
-                {}
-            )
+        metadata = payment_intent.get(
+            "metadata",
+            {},
         )
 
 
@@ -810,7 +914,9 @@ async def stripe_webhook(
 
 
         transaction_id = (
-            payment_intent.get("id")
+            payment_intent.get(
+                "id"
+            )
         )
 
 
@@ -840,11 +946,9 @@ async def stripe_webhook(
         payment_intent = event_data
 
 
-        metadata = (
-            payment_intent.get(
-                "metadata",
-                {}
-            )
+        metadata = payment_intent.get(
+            "metadata",
+            {},
         )
 
 
@@ -854,7 +958,9 @@ async def stripe_webhook(
 
 
         transaction_id = (
-            payment_intent.get("id")
+            payment_intent.get(
+                "id"
+            )
         )
 
 
@@ -884,11 +990,9 @@ async def stripe_webhook(
         session = event_data
 
 
-        metadata = (
-            session.get(
-                "metadata",
-                {}
-            )
+        metadata = session.get(
+            "metadata",
+            {},
         )
 
 
@@ -897,17 +1001,13 @@ async def stripe_webhook(
         )
 
 
-        payment_status = (
-            session.get(
-                "payment_status"
-            )
+        payment_status = session.get(
+            "payment_status"
         )
 
 
-        payment_intent_id = (
-            session.get(
-                "payment_intent"
-            )
+        payment_intent_id = session.get(
+            "payment_intent"
         )
 
 
@@ -940,11 +1040,9 @@ async def stripe_webhook(
         session = event_data
 
 
-        metadata = (
-            session.get(
-                "metadata",
-                {}
-            )
+        metadata = session.get(
+            "metadata",
+            {},
         )
 
 
@@ -956,12 +1054,8 @@ async def stripe_webhook(
         if order_id:
 
             order = get_order(
-
                 db,
-
-                int(
-                    order_id
-                ),
+                int(order_id),
             )
 
 
@@ -974,6 +1068,12 @@ async def stripe_webhook(
                         == order.id
                     )
                     .first()
+                )
+
+
+                already_failed = (
+                    order.payment_status
+                    == "failed"
                 )
 
 
@@ -991,6 +1091,20 @@ async def stripe_webhook(
                 order.order_status = (
                     "cancelled"
                 )
+
+
+                if not already_failed:
+
+                    create_notification(
+                        db=db,
+                        user_id=order.user_id,
+                        notification_type=
+                            "payment_failed",
+                        message=(
+                            f"Checkout expired "
+                            f"for Order #{order.id}."
+                        ),
+                    )
 
 
                 db.commit()

@@ -420,3 +420,88 @@ class Payment(Base):
         "Order",
         back_populates="payment",
     )
+
+
+# ============================================================
+# NOTIFICATION
+# ============================================================
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
+
+    # --------------------------------------------------------
+    # User reference
+    # --------------------------------------------------------
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+
+    # --------------------------------------------------------
+    # Notification type
+    # --------------------------------------------------------
+    # order_confirmed
+    # payment_success
+    # payment_failed
+    # order_shipped
+    # order_delivered
+    # --------------------------------------------------------
+
+    type = Column(
+        String(50),
+        nullable=False,
+        index=True,
+    )
+
+    # --------------------------------------------------------
+    # Notification message
+    # --------------------------------------------------------
+
+    message = Column(
+        Text,
+        nullable=False,
+    )
+
+    # --------------------------------------------------------
+    # Read status
+    # --------------------------------------------------------
+    # unread
+    # read
+    # --------------------------------------------------------
+
+    read_status = Column(
+        String(20),
+        nullable=False,
+        default="unread",
+        index=True,
+    )
+
+    # --------------------------------------------------------
+    # Timestamp
+    # --------------------------------------------------------
+
+    timestamp = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        index=True,
+    )
+
+    # --------------------------------------------------------
+    # User relationship
+    # --------------------------------------------------------
+
+    user = relationship(
+        "User",
+        backref="notifications",
+    )

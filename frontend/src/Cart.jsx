@@ -2,27 +2,60 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import "./App.css";
 
-
 // ============================================================
-// ONLINE PRODUCT IMAGES
-// Same image mapping used in Products.jsx
+// ONLINE PRODUCT IMAGES - ALL 10 PRODUCTS
 // ============================================================
 
 const ONLINE_PRODUCT_IMAGES = {
+  "smart watch":
+    "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
+
   "wireless headphones":
     "https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA3L3Jhd3BpeGVsX29mZmljZV8zNF9jbG9zZXVwX3Byb2R1Y3RfcGhvdG9ncmFwaHlfb2ZfYV93aGl0ZV9ibGFua18zY2MwOWUzYy00ZjdkLTQzMTQtOWYwMi1kY2EzOTgzZjBkOGEucG5n.png",
 
-  "smart watch":
-    "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
+  "bluetooth speaker":
+    "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=800&q=80",
+
+  smartphone:
+    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
+
+  laptop:
+    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
+
+  "mechanical keyboard":
+    "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+
+  "wireless mouse":
+    "https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=800&q=80",
+
+  "fitness band":
+    "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?auto=format&fit=crop&w=800&q=80",
+
+  "gaming headset":
+    "https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=800&q=80",
+
+  tablet:
+    "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80",
 };
 
 
 // ============================================================
-// FALLBACK IMAGE
+// PRODUCT PLACEHOLDERS
+// Used only if online image itself fails
 // ============================================================
 
-const FALLBACK_IMAGE =
-  "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png";
+const PRODUCT_PLACEHOLDERS = {
+  "smart watch": "⌚",
+  "wireless headphones": "🎧",
+  "bluetooth speaker": "🔊",
+  smartphone: "📱",
+  laptop: "💻",
+  "mechanical keyboard": "⌨️",
+  "wireless mouse": "🖱️",
+  "fitness band": "⌚",
+  "gaming headset": "🎧",
+  tablet: "📱",
+};
 
 
 // ============================================================
@@ -30,105 +63,34 @@ const FALLBACK_IMAGE =
 // ============================================================
 
 const getProductImage = (product) => {
-
   const productName = (
     product?.name || ""
   )
     .trim()
     .toLowerCase();
 
-
-  // ----------------------------------------------------------
-  // 1. Use known product name mapping
-  // ----------------------------------------------------------
-
-  if (
-    ONLINE_PRODUCT_IMAGES[productName]
-  ) {
-    return ONLINE_PRODUCT_IMAGES[
-      productName
-    ];
-  }
+  return (
+    ONLINE_PRODUCT_IMAGES[productName] ||
+    null
+  );
+};
 
 
-  // ----------------------------------------------------------
-  // 2. Backend image array with full URL
-  // ----------------------------------------------------------
+// ============================================================
+// GET PLACEHOLDER
+// ============================================================
 
-  if (
-    Array.isArray(product?.images)
-  ) {
+const getProductPlaceholder = (product) => {
+  const productName = (
+    product?.name || ""
+  )
+    .trim()
+    .toLowerCase();
 
-    const image =
-      product.images[0];
-
-
-    if (
-      image &&
-      (
-        image.startsWith("http://") ||
-        image.startsWith("https://")
-      )
-    ) {
-      return image;
-    }
-  }
-
-
-  // ----------------------------------------------------------
-  // 3. Backend image string with full URL
-  // ----------------------------------------------------------
-
-  if (
-    typeof product?.images === "string"
-  ) {
-
-    const image =
-      product.images.trim();
-
-
-    if (
-      image.startsWith("http://") ||
-      image.startsWith("https://")
-    ) {
-      return image;
-    }
-
-
-    // --------------------------------------------------------
-    // 4. Existing database filenames
-    // --------------------------------------------------------
-
-    const fileName =
-      image.toLowerCase();
-
-
-    if (
-      fileName === "headphones.jpg" ||
-      fileName === "headphone.jpg"
-    ) {
-      return ONLINE_PRODUCT_IMAGES[
-        "wireless headphones"
-      ];
-    }
-
-
-    if (
-      fileName === "smart-watch.jpg" ||
-      fileName === "smartwatch.jpg"
-    ) {
-      return ONLINE_PRODUCT_IMAGES[
-        "smart watch"
-      ];
-    }
-  }
-
-
-  // ----------------------------------------------------------
-  // 5. Final fallback
-  // ----------------------------------------------------------
-
-  return FALLBACK_IMAGE;
+  return (
+    PRODUCT_PLACEHOLDERS[productName] ||
+    "🛍️"
+  );
 };
 
 
@@ -151,40 +113,31 @@ function Cart({ onBack }) {
     useState("");
 
 
-  // ============================================================
+  // ==========================================================
   // LOAD CART
-  // ============================================================
+  // ==========================================================
 
   const loadCart = async () => {
-
     try {
 
       setLoading(true);
-
       setError("");
-
 
       const token =
         localStorage.getItem(
           "access_token"
         );
 
-
       if (!token) {
-
         throw new Error(
           "Please login again."
         );
       }
 
-
       const data =
         await api.getCart(token);
 
-
-      if (
-        Array.isArray(data)
-      ) {
+      if (Array.isArray(data)) {
 
         setCartItems(data);
 
@@ -199,8 +152,8 @@ function Cart({ onBack }) {
       } else {
 
         setCartItems([]);
-      }
 
+      }
 
     } catch (error) {
 
@@ -209,320 +162,255 @@ function Cart({ onBack }) {
         error
       );
 
-
       setError(
         error.message ||
-          "Unable to load cart"
+        "Unable to load cart."
       );
-
 
     } finally {
 
       setLoading(false);
+
     }
   };
 
 
+  // ==========================================================
+  // LOAD CART
+  // ==========================================================
+
   useEffect(() => {
-
     loadCart();
-
   }, []);
 
 
-  // ============================================================
+  // ==========================================================
   // INCREASE QUANTITY
-  // ============================================================
+  // ==========================================================
 
-  const increaseQuantity =
-    async (item) => {
+  const increaseQuantity = async (item) => {
 
-      try {
+    try {
 
-        setError("");
+      setError("");
 
-
-        const token =
-          localStorage.getItem(
-            "access_token"
-          );
-
-
-        if (!token) {
-
-          throw new Error(
-            "Please login again."
-          );
-        }
-
-
-        const updatedItem =
-          await api.updateCart(
-            item.id,
-            Number(
-              item.quantity
-            ) + 1,
-            token
-          );
-
-
-        setCartItems(
-          (current) =>
-            current.map(
-              (cartItem) =>
-                cartItem.id ===
-                item.id
-                  ? updatedItem
-                  : cartItem
-            )
+      const token =
+        localStorage.getItem(
+          "access_token"
         );
 
-
-      } catch (error) {
-
-        console.error(
-          "Increase quantity error:",
-          error
-        );
-
-
-        setError(
-          error.message ||
-            "Unable to update quantity"
+      if (!token) {
+        throw new Error(
+          "Please login again."
         );
       }
-    };
 
-
-  // ============================================================
-  // DECREASE QUANTITY
-  // ============================================================
-
-  const decreaseQuantity =
-    async (item) => {
-
-      const quantity =
-        Number(
-          item.quantity
-        );
-
-
-      if (
-        quantity <= 1
-      ) {
-        return;
-      }
-
-
-      try {
-
-        setError("");
-
-
-        const token =
-          localStorage.getItem(
-            "access_token"
-          );
-
-
-        if (!token) {
-
-          throw new Error(
-            "Please login again."
-          );
-        }
-
-
-        const updatedItem =
-          await api.updateCart(
-            item.id,
-            quantity - 1,
-            token
-          );
-
-
-        setCartItems(
-          (current) =>
-            current.map(
-              (cartItem) =>
-                cartItem.id ===
-                item.id
-                  ? updatedItem
-                  : cartItem
-            )
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Decrease quantity error:",
-          error
-        );
-
-
-        setError(
-          error.message ||
-            "Unable to update quantity"
-        );
-      }
-    };
-
-
-  // ============================================================
-  // REMOVE ITEM
-  // ============================================================
-
-  const removeItem =
-    async (cartId) => {
-
-      try {
-
-        setError("");
-
-
-        const token =
-          localStorage.getItem(
-            "access_token"
-          );
-
-
-        if (!token) {
-
-          throw new Error(
-            "Please login again."
-          );
-        }
-
-
-        await api.deleteCart(
-          cartId,
+      const updatedItem =
+        await api.updateCart(
+          item.id,
+          Number(item.quantity) + 1,
           token
         );
 
+      setCartItems((current) =>
+        current.map((cartItem) =>
+          cartItem.id === item.id
+            ? updatedItem
+            : cartItem
+        )
+      );
 
-        setCartItems(
-          (current) =>
-            current.filter(
-              (item) =>
-                item.id !== cartId
-            )
+    } catch (error) {
+
+      console.error(
+        "Increase quantity error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Unable to update quantity."
+      );
+
+    }
+  };
+
+
+  // ==========================================================
+  // DECREASE QUANTITY
+  // ==========================================================
+
+  const decreaseQuantity = async (item) => {
+
+    const quantity =
+      Number(item.quantity);
+
+    if (quantity <= 1) {
+      return;
+    }
+
+    try {
+
+      setError("");
+
+      const token =
+        localStorage.getItem(
+          "access_token"
         );
 
-
-      } catch (error) {
-
-        console.error(
-          "Remove cart error:",
-          error
-        );
-
-
-        setError(
-          error.message ||
-            "Unable to remove item"
-        );
-      }
-    };
-
-
-  // ============================================================
-  // CREATE STRIPE CHECKOUT
-  // ============================================================
-
-  const handleCheckout =
-    async () => {
-
-      try {
-
-        setError(
-          ""
-        );
-
-        setCheckoutLoading(
-          true
-        );
-
-
-        const token =
-          localStorage.getItem(
-            "access_token"
-          );
-
-
-        if (!token) {
-
-          throw new Error(
-            "Your session has expired. Please login again."
-          );
-        }
-
-
-        if (
-          cartItems.length === 0
-        ) {
-
-          throw new Error(
-            "Your cart is empty."
-          );
-        }
-
-
-        console.log(
-          "Creating checkout..."
-        );
-
-
-        const data =
-          await api.createCheckout(
-            token
-          );
-
-
-        console.log(
-          "Checkout response:",
-          data
-        );
-
-
-        if (
-          !data?.checkout_url
-        ) {
-
-          throw new Error(
-            "Stripe checkout URL was not returned."
-          );
-        }
-
-
-        window.location.href =
-          data.checkout_url;
-
-
-      } catch (error) {
-
-        console.error(
-          "Checkout error:",
-          error
-        );
-
-
-        setError(
-          error.message ||
-            "Unable to start checkout."
-        );
-
-
-        setCheckoutLoading(
-          false
+      if (!token) {
+        throw new Error(
+          "Please login again."
         );
       }
-    };
+
+      const updatedItem =
+        await api.updateCart(
+          item.id,
+          quantity - 1,
+          token
+        );
+
+      setCartItems((current) =>
+        current.map((cartItem) =>
+          cartItem.id === item.id
+            ? updatedItem
+            : cartItem
+        )
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Decrease quantity error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Unable to update quantity."
+      );
+
+    }
+  };
 
 
-  // ============================================================
+  // ==========================================================
+  // REMOVE ITEM
+  // ==========================================================
+
+  const removeItem = async (cartId) => {
+
+    try {
+
+      setError("");
+
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
+      if (!token) {
+        throw new Error(
+          "Please login again."
+        );
+      }
+
+      await api.deleteCart(
+        cartId,
+        token
+      );
+
+      setCartItems((current) =>
+        current.filter(
+          (item) =>
+            item.id !== cartId
+        )
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Remove cart error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Unable to remove item."
+      );
+
+    }
+  };
+
+
+  // ==========================================================
+  // STRIPE CHECKOUT
+  // ==========================================================
+
+  const handleCheckout = async () => {
+
+    try {
+
+      setError("");
+
+      setCheckoutLoading(true);
+
+      const token =
+        localStorage.getItem(
+          "access_token"
+        );
+
+      if (!token) {
+        throw new Error(
+          "Your session has expired. Please login again."
+        );
+      }
+
+      if (
+        cartItems.length === 0
+      ) {
+        throw new Error(
+          "Your cart is empty."
+        );
+      }
+
+      const data =
+        await api.createCheckout(
+          token
+        );
+
+      if (
+        !data?.checkout_url
+      ) {
+        throw new Error(
+          "Stripe checkout URL was not returned."
+        );
+      }
+
+      window.location.href =
+        data.checkout_url;
+
+    } catch (error) {
+
+      console.error(
+        "Checkout error:",
+        error
+      );
+
+      setError(
+        error.message ||
+        "Unable to start checkout."
+      );
+
+      setCheckoutLoading(false);
+    }
+  };
+
+
+  // ==========================================================
   // TOTAL QUANTITY
-  // ============================================================
+  // ==========================================================
 
   const totalQuantity =
     cartItems.reduce(
@@ -535,9 +423,9 @@ function Cart({ onBack }) {
     );
 
 
-  // ============================================================
+  // ==========================================================
   // TOTAL PRICE
-  // ============================================================
+  // ==========================================================
 
   const total =
     cartItems.reduce(
@@ -545,17 +433,13 @@ function Cart({ onBack }) {
 
         const price =
           Number(
-            item.product?.price ||
-              0
+            item.product?.price || 0
           );
-
 
         const quantity =
           Number(
-            item.quantity ||
-              0
+            item.quantity || 0
           );
-
 
         return (
           sum +
@@ -566,14 +450,13 @@ function Cart({ onBack }) {
     );
 
 
-  // ============================================================
+  // ==========================================================
   // LOADING
-  // ============================================================
+  // ==========================================================
 
   if (loading) {
 
     return (
-
       <div className="cart-page">
 
         <div className="cart-loading">
@@ -587,14 +470,13 @@ function Cart({ onBack }) {
   }
 
 
-  // ============================================================
+  // ==========================================================
   // MAIN UI
-  // ============================================================
+  // ==========================================================
 
   return (
 
     <div className="cart-page">
-
 
       {/* ======================================================
           HEADER
@@ -610,20 +492,15 @@ function Cart({ onBack }) {
           ← Continue Shopping
         </button>
 
-
         <h1>
           🛒 My Cart
         </h1>
 
-
         <p>
-
           {totalQuantity}{" "}
-
           {totalQuantity === 1
             ? "item"
             : "items"}
-
         </p>
 
       </div>
@@ -636,9 +513,7 @@ function Cart({ onBack }) {
       {error && (
 
         <div className="error-message">
-
           ⚠️ {error}
-
         </div>
 
       )}
@@ -656,17 +531,14 @@ function Cart({ onBack }) {
             🛒
           </div>
 
-
           <h2>
             Your cart is empty
           </h2>
-
 
           <p>
             Add some products to
             your cart.
           </p>
-
 
           <button
             type="button"
@@ -680,13 +552,7 @@ function Cart({ onBack }) {
 
       ) : (
 
-
-        /* ====================================================
-           CART CONTENT
-        ==================================================== */
-
         <div className="cart-layout">
-
 
           {/* ==================================================
               CART ITEMS
@@ -694,50 +560,49 @@ function Cart({ onBack }) {
 
           <div className="cart-items">
 
-            {cartItems.map(
-              (item) => {
+            {cartItems.map((item) => {
 
-                const product =
-                  item.product;
+              const product =
+                item.product;
 
+              const price =
+                Number(
+                  product?.price || 0
+                );
 
-                const price =
-                  Number(
-                    product?.price ||
-                      0
-                  );
+              const quantity =
+                Number(
+                  item.quantity || 0
+                );
 
+              const subtotal =
+                price * quantity;
 
-                const quantity =
-                  Number(
-                    item.quantity ||
-                      0
-                  );
+              const imageUrl =
+                getProductImage(
+                  product
+                );
 
+              return (
 
-                const subtotal =
-                  price * quantity;
+                <div
+                  className="cart-item"
+                  key={item.id}
+                >
 
-
-                const imageUrl =
-                  getProductImage(
-                    product
-                  );
-
-
-                return (
+                  {/* ==========================================
+                      PRODUCT IMAGE
+                  ========================================== */}
 
                   <div
-                    className="cart-item"
-                    key={item.id}
+                    className="cart-product-image"
+                    style={{
+                      position:
+                        "relative",
+                    }}
                   >
 
-
-                    {/* ==================================================
-                        PRODUCT IMAGE
-                    ================================================== */}
-
-                    <div className="cart-product-image">
+                    {imageUrl ? (
 
                       <img
                         src={imageUrl}
@@ -745,150 +610,190 @@ function Cart({ onBack }) {
                           product?.name ||
                           "Product"
                         }
-
                         loading="lazy"
 
-                        onError={(
-                          event
-                        ) => {
+                        onError={(event) => {
+
+                          console.error(
+                            "Online image failed:",
+                            product?.name,
+                            imageUrl
+                          );
+
+                          event.currentTarget
+                            .style
+                            .display =
+                            "none";
+
+                          const placeholder =
+                            event.currentTarget
+                              .parentElement
+                              .querySelector(
+                                ".image-placeholder"
+                              );
 
                           if (
-                            event.currentTarget.src !==
-                            FALLBACK_IMAGE
+                            placeholder
                           ) {
-
-                            event.currentTarget.src =
-                              FALLBACK_IMAGE;
-
+                            placeholder.style.display =
+                              "flex";
                           }
+                        }}
+
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
                         }}
                       />
 
+                    ) : null}
+
+
+                    <div
+                      className="image-placeholder"
+                      style={{
+                        display:
+                          imageUrl
+                            ? "none"
+                            : "flex",
+
+                        width:
+                          "100%",
+
+                        height:
+                          "100%",
+
+                        alignItems:
+                          "center",
+
+                        justifyContent:
+                          "center",
+
+                        fontSize:
+                          "48px",
+                      }}
+                    >
+                      {getProductPlaceholder(
+                        product
+                      )}
                     </div>
 
-
-                    {/* ==================================================
-                        PRODUCT DETAILS
-                    ================================================== */}
-
-                    <div className="cart-product-info">
-
-                      <h2>
-
-                        {product?.name ||
-                          "Product"}
-
-                      </h2>
+                  </div>
 
 
-                      <p>
+                  {/* ==========================================
+                      PRODUCT DETAILS
+                  ========================================== */}
 
-                        {product?.description ||
-                          "No description available"}
+                  <div
+                    className="cart-product-info"
+                  >
 
-                      </p>
+                    <h2>
+                      {product?.name ||
+                        "Product"}
+                    </h2>
 
+                    <p>
+                      {product?.description ||
+                        "No description available"}
+                    </p>
 
-                      <strong>
-
-                        ₹
-                        {price.toLocaleString(
-                          "en-IN"
-                        )}
-
-                      </strong>
-
-                    </div>
-
-
-                    {/* ==================================================
-                        QUANTITY
-                    ================================================== */}
-
-                    <div className="quantity-control">
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          decreaseQuantity(
-                            item
-                          )
-                        }
-
-                        disabled={
-                          quantity <= 1 ||
-                          checkoutLoading
-                        }
-                      >
-                        −
-                      </button>
-
-
-                      <span>
-                        {quantity}
-                      </span>
-
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          increaseQuantity(
-                            item
-                          )
-                        }
-
-                        disabled={
-                          checkoutLoading
-                        }
-                      >
-                        +
-                      </button>
-
-                    </div>
-
-
-                    {/* ==================================================
-                        SUBTOTAL
-                    ================================================== */}
-
-                    <div className="cart-subtotal">
-
+                    <strong>
                       ₹
-                      {subtotal.toLocaleString(
+                      {price.toLocaleString(
                         "en-IN"
                       )}
+                    </strong>
 
-                    </div>
+                  </div>
 
 
-                    {/* ==================================================
-                        REMOVE
-                    ================================================== */}
+                  {/* ==========================================
+                      QUANTITY
+                  ========================================== */}
+
+                  <div
+                    className="quantity-control"
+                  >
 
                     <button
                       type="button"
-                      className="remove-btn"
-
                       onClick={() =>
-                        removeItem(
-                          item.id
+                        decreaseQuantity(
+                          item
                         )
                       }
+                      disabled={
+                        quantity <= 1 ||
+                        checkoutLoading
+                      }
+                    >
+                      −
+                    </button>
 
+                    <span>
+                      {quantity}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        increaseQuantity(
+                          item
+                        )
+                      }
                       disabled={
                         checkoutLoading
                       }
                     >
-
-                      🗑 Remove
-
+                      +
                     </button>
 
+                  </div>
+
+
+                  {/* ==========================================
+                      SUBTOTAL
+                  ========================================== */}
+
+                  <div
+                    className="cart-subtotal"
+                  >
+
+                    ₹
+                    {subtotal.toLocaleString(
+                      "en-IN"
+                    )}
 
                   </div>
-                );
-              }
-            )}
+
+
+                  {/* ==========================================
+                      REMOVE
+                  ========================================== */}
+
+                  <button
+                    type="button"
+                    className="remove-btn"
+                    onClick={() =>
+                      removeItem(
+                        item.id
+                      )
+                    }
+                    disabled={
+                      checkoutLoading
+                    }
+                  >
+                    🗑 Remove
+                  </button>
+
+                </div>
+
+              );
+
+            })}
 
           </div>
 
@@ -897,15 +802,13 @@ function Cart({ onBack }) {
               ORDER SUMMARY
           ================================================== */}
 
-          <div className="cart-summary">
-
+          <div
+            className="cart-summary"
+          >
 
             <h2>
               Order Summary
             </h2>
-
-
-            {/* ITEMS */}
 
             <div className="summary-row">
 
@@ -913,15 +816,11 @@ function Cart({ onBack }) {
                 Items
               </span>
 
-
               <span>
                 {totalQuantity}
               </span>
 
             </div>
-
-
-            {/* SUBTOTAL */}
 
             <div className="summary-row">
 
@@ -929,20 +828,14 @@ function Cart({ onBack }) {
                 Subtotal
               </span>
 
-
               <span>
-
                 ₹
                 {total.toLocaleString(
                   "en-IN"
                 )}
-
               </span>
 
             </div>
-
-
-            {/* DELIVERY */}
 
             <div className="summary-row">
 
@@ -950,18 +843,13 @@ function Cart({ onBack }) {
                 Delivery
               </span>
 
-
               <span>
                 FREE
               </span>
 
             </div>
 
-
             <hr />
-
-
-            {/* TOTAL */}
 
             <div className="total-row">
 
@@ -969,34 +857,25 @@ function Cart({ onBack }) {
                 Total
               </span>
 
-
               <span>
-
                 ₹
                 {total.toLocaleString(
                   "en-IN"
                 )}
-
               </span>
 
             </div>
 
-
-            {/* ==================================================
-                CHECKOUT
-            ================================================== */}
-
             <button
               type="button"
               className="checkout-btn"
-
               onClick={
                 handleCheckout
               }
-
               disabled={
                 checkoutLoading ||
-                cartItems.length === 0
+                cartItems.length ===
+                  0
               }
             >
 
@@ -1009,6 +888,7 @@ function Cart({ onBack }) {
           </div>
 
         </div>
+
       )}
 
     </div>
