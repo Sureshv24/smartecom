@@ -11,6 +11,7 @@ from sqlalchemy import (
     JSON,
     Enum,
     UniqueConstraint,
+    Boolean,
 )
 
 from sqlalchemy.orm import relationship
@@ -55,6 +56,12 @@ class User(Base):
             "customer",
         ),
         default="customer",
+        nullable=False,
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True,
         nullable=False,
     )
 
@@ -117,10 +124,6 @@ class Product(Base):
         JSON,
         nullable=True,
     )
-
-    # --------------------------------------------------------
-    # Relationship with OrderItem
-    # --------------------------------------------------------
 
     order_items = relationship(
         "OrderItem",
@@ -189,39 +192,16 @@ class Order(Base):
         index=True,
     )
 
-    # --------------------------------------------------------
-    # Total amount including tax
-    # --------------------------------------------------------
-
     total_amount = Column(
         DECIMAL(10, 2),
         nullable=False,
     )
-
-    # --------------------------------------------------------
-    # Payment status
-    # --------------------------------------------------------
-    # pending
-    # paid
-    # failed
-    # refunded
-    # --------------------------------------------------------
 
     payment_status = Column(
         String(30),
         nullable=False,
         default="pending",
     )
-
-    # --------------------------------------------------------
-    # Order status
-    # --------------------------------------------------------
-    # pending
-    # paid
-    # shipped
-    # delivered
-    # cancelled
-    # --------------------------------------------------------
 
     order_status = Column(
         String(30),
@@ -235,28 +215,16 @@ class Order(Base):
         default=datetime.utcnow,
     )
 
-    # --------------------------------------------------------
-    # User relationship
-    # --------------------------------------------------------
-
     user = relationship(
         "User",
         backref="orders",
     )
-
-    # --------------------------------------------------------
-    # Order items relationship
-    # --------------------------------------------------------
 
     items = relationship(
         "OrderItem",
         back_populates="order",
         cascade="all, delete-orphan",
     )
-
-    # --------------------------------------------------------
-    # Payment relationship
-    # --------------------------------------------------------
 
     payment = relationship(
         "Payment",
@@ -313,18 +281,10 @@ class OrderItem(Base):
         nullable=False,
     )
 
-    # --------------------------------------------------------
-    # Order relationship
-    # --------------------------------------------------------
-
     order = relationship(
         "Order",
         back_populates="items",
     )
-
-    # --------------------------------------------------------
-    # Product relationship
-    # --------------------------------------------------------
 
     product = relationship(
         "Product",
@@ -346,10 +306,6 @@ class Payment(Base):
         autoincrement=True,
     )
 
-    # --------------------------------------------------------
-    # Order reference
-    # --------------------------------------------------------
-
     order_id = Column(
         Integer,
         ForeignKey("orders.id"),
@@ -358,18 +314,10 @@ class Payment(Base):
         index=True,
     )
 
-    # --------------------------------------------------------
-    # Payment amount
-    # --------------------------------------------------------
-
     amount = Column(
         DECIMAL(10, 2),
         nullable=False,
     )
-
-    # --------------------------------------------------------
-    # Payment method
-    # --------------------------------------------------------
 
     payment_method = Column(
         String(50),
@@ -377,24 +325,11 @@ class Payment(Base):
         default="stripe",
     )
 
-    # --------------------------------------------------------
-    # Stripe transaction/session/payment ID
-    # --------------------------------------------------------
-
     transaction_id = Column(
         String(255),
         nullable=True,
         unique=True,
     )
-
-    # --------------------------------------------------------
-    # Payment status
-    # --------------------------------------------------------
-    # pending
-    # paid
-    # failed
-    # refunded
-    # --------------------------------------------------------
 
     status = Column(
         String(30),
@@ -402,19 +337,11 @@ class Payment(Base):
         default="pending",
     )
 
-    # --------------------------------------------------------
-    # Timestamp
-    # --------------------------------------------------------
-
     timestamp = Column(
         DateTime,
         nullable=False,
         default=datetime.utcnow,
     )
-
-    # --------------------------------------------------------
-    # Order relationship
-    # --------------------------------------------------------
 
     order = relationship(
         "Order",
@@ -436,10 +363,6 @@ class Notification(Base):
         autoincrement=True,
     )
 
-    # --------------------------------------------------------
-    # User reference
-    # --------------------------------------------------------
-
     user_id = Column(
         Integer,
         ForeignKey("users.id"),
@@ -447,37 +370,16 @@ class Notification(Base):
         index=True,
     )
 
-    # --------------------------------------------------------
-    # Notification type
-    # --------------------------------------------------------
-    # order_confirmed
-    # payment_success
-    # payment_failed
-    # order_shipped
-    # order_delivered
-    # --------------------------------------------------------
-
     type = Column(
         String(50),
         nullable=False,
         index=True,
     )
 
-    # --------------------------------------------------------
-    # Notification message
-    # --------------------------------------------------------
-
     message = Column(
         Text,
         nullable=False,
     )
-
-    # --------------------------------------------------------
-    # Read status
-    # --------------------------------------------------------
-    # unread
-    # read
-    # --------------------------------------------------------
 
     read_status = Column(
         String(20),
@@ -486,20 +388,12 @@ class Notification(Base):
         index=True,
     )
 
-    # --------------------------------------------------------
-    # Timestamp
-    # --------------------------------------------------------
-
     timestamp = Column(
         DateTime,
         nullable=False,
         default=datetime.utcnow,
         index=True,
     )
-
-    # --------------------------------------------------------
-    # User relationship
-    # --------------------------------------------------------
 
     user = relationship(
         "User",

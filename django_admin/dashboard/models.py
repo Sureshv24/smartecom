@@ -1,21 +1,45 @@
 from django.db import models
 
 
+# ============================================================
+# USER
+# ============================================================
+
 class User(models.Model):
+
     ROLE_CHOICES = (
         ("admin", "Admin"),
         ("staff", "Staff"),
         ("customer", "Customer"),
     )
 
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    name = models.CharField(
+        max_length=100
+    )
+
+    email = models.EmailField(
+        max_length=255,
+        unique=True
+    )
+
+    password = models.CharField(
+        max_length=255
+    )
+
     role = models.CharField(
         max_length=20,
-        choices=ROLE_CHOICES
+        choices=ROLE_CHOICES,
+        default="customer",
     )
+
+    is_active = models.BooleanField(
+        default=True
+    )
+
     created_at = models.DateTimeField()
 
     class Meta:
@@ -26,18 +50,32 @@ class User(models.Model):
         return f"{self.name} ({self.email})"
 
 
+# ============================================================
+# PRODUCT
+# ============================================================
+
 class Product(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=200)
+
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    name = models.CharField(
+        max_length=200
+    )
+
     description = models.TextField(
         blank=True,
         null=True
     )
+
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2
     )
+
     stock = models.IntegerField()
+
     images = models.JSONField(
         blank=True,
         null=True
@@ -51,8 +89,15 @@ class Product(models.Model):
         return self.name
 
 
+# ============================================================
+# CART
+# ============================================================
+
 class Cart(models.Model):
-    id = models.AutoField(primary_key=True)
+
+    id = models.AutoField(
+        primary_key=True
+    )
 
     user = models.ForeignKey(
         User,
