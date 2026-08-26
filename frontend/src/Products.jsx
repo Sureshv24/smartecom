@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 
 
-// ============================================================
-// ONLINE PRODUCT IMAGES
-// ============================================================
-
 const ONLINE_PRODUCT_IMAGES = {
 
-  // WATCHES
+ 
   "smart watch":
     "https://images.rawpixel.com/image_png_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIzLTEwL3JtNTUxLTM3LWFwcGxld2F0Y2gtMzctYl8xLnBuZw.png",
 
@@ -16,7 +12,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1557935728-e6d1eaabe558?auto=format&fit=crop&w=800&q=80",
 
 
-  // AUDIO
+
   "wireless headphones":
     "https://images.rawpixel.com/image_png_social_square/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA3L3Jhd3BpeGVsX29mZmljZV8zNF9jbG9zZXVwX3Byb2R1Y3RfcGhvdG9ncmFwaHlfb2ZfYV93aGl0ZV9ibGFua18zY2MwOWUzYy00ZjdkLTQzMTQtOWYwMi1kY2EzOTgzZjBkOGEucG5n.png",
 
@@ -27,7 +23,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=800&q=80",
 
 
-  // ELECTRONICS
+ 
   "smartphone":
     "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
 
@@ -35,7 +31,7 @@ const ONLINE_PRODUCT_IMAGES = {
     "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80",
 
 
-  // COMPUTING
+  
   "laptop":
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=800&q=80",
 

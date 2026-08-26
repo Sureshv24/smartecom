@@ -1,15 +1,12 @@
 from django import forms
 from django.contrib import admin
-from django.core.files.storage import default_storage
 from django.utils.html import format_html
-
-from pathlib import Path
-import uuid
 
 from .models import (
     User,
     Product,
     Cart,
+    Order,
 )
 
 
@@ -68,11 +65,11 @@ class UserAdmin(admin.ModelAdmin):
 
 class ProductAdminForm(forms.ModelForm):
 
-    image_upload = forms.ImageField(
+    image_url = forms.URLField(
         required=False,
-        label="Product Image",
+        label="Product Image URL",
         help_text=(
-            "Upload JPG, JPEG, PNG or WEBP image."
+            "Paste a direct JPG, PNG or WEBP image URL."
         ),
     )
 
@@ -84,31 +81,8 @@ class ProductAdminForm(forms.ModelForm):
             "description",
             "price",
             "stock",
-            "image_upload",
+            "image_url",
         )
-
-    def clean_image_upload(self):
-
-        image = self.cleaned_data.get(
-            "image_upload"
-        )
-
-        if not image:
-            return image
-
-        allowed_types = {
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-        }
-
-        if image.content_type not in allowed_types:
-
-            raise forms.ValidationError(
-                "Only JPG, JPEG and WEBP images are allowed."
-            )
-
-        return image
 
     def save(
         self,
@@ -119,49 +93,17 @@ class ProductAdminForm(forms.ModelForm):
             commit=False
         )
 
-        image = self.cleaned_data.get(
-            "image_upload"
+        image_url = (
+            self.cleaned_data.get(
+                "image_url"
+            )
         )
 
         # ----------------------------------------------------
-        # UPLOAD NEW IMAGE
+        # SAVE IMAGE URL
         # ----------------------------------------------------
 
-        if image:
-
-            extension = (
-                Path(
-                    image.name
-                )
-                .suffix
-                .lower()
-            )
-
-            filename = (
-                f"{uuid.uuid4().hex}"
-                f"{extension}"
-            )
-
-            storage_path = (
-                f"products/{filename}"
-            )
-
-            saved_path = (
-                default_storage.save(
-                    storage_path,
-                    image,
-                )
-            )
-
-            image_url = (
-                default_storage.url(
-                    saved_path
-                )
-            )
-
-            # ------------------------------------------------
-            # EXISTING IMAGES
-            # ------------------------------------------------
+        if image_url:
 
             existing_images = (
                 product.images
@@ -172,6 +114,7 @@ class ProductAdminForm(forms.ModelForm):
                 else []
             )
 
+            # Keep existing URLs
             existing_images.append(
                 image_url
             )
@@ -180,12 +123,7 @@ class ProductAdminForm(forms.ModelForm):
                 existing_images
             )
 
-        # ----------------------------------------------------
-        # SAVE PRODUCT
-        # ----------------------------------------------------
-
         if commit:
-
             product.save()
 
         return product
@@ -221,7 +159,7 @@ class ProductAdmin(admin.ModelAdmin):
         "description",
         "price",
         "stock",
-        "image_upload",
+        "image_url",
         "image_preview",
     )
 
@@ -264,104 +202,70 @@ class ProductAdmin(admin.ModelAdmin):
     ):
 
         if not obj.images:
-
-            return (
-                "No images uploaded."
-            )
+            return "No images uploaded."
 
         if not isinstance(
             obj.images,
             list,
         ):
-
-            return (
-                "No valid image data."
-            )
+            return "No valid image data."
 
         previews = []
 
-        for image_value in obj.images:
+        for image_url in obj.images:
 
-            image_value = str(
-                image_value
-            )
+            image_url = str(
+                image_url
+            ).strip()
 
-            # ------------------------------------------------
-            # SUPPORT OLD DATABASE VALUES
-            #
-            # Example:
-            # tablet.jpg
-            #
-            # New uploads:
-            # /media/products/abc123.jpg
-            # ------------------------------------------------
-
-            if image_value.startswith(
-                (
-                    "http://",
-                    "https://",
-                    "/",
-                )
-            ):
-
-                image_url = (
-                    image_value
-                )
-
-            else:
-
-                image_url = (
-                    f"/media/products/"
-                    f"{image_value}"
-                )
+            if not image_url:
+                continue
 
             previews.append(
-
                 format_html(
-
-                    '<div style="'
-                    'margin:10px 0;'
-                    'padding:10px;'
-                    'border:1px solid #ddd;'
-                    'border-radius:8px;'
-                    'width:180px;'
-                    'background:#fafafa;'
-                    '">'
-
-                    '<img src="{}" '
-                    'style="'
-                    'width:150px;'
-                    'height:120px;'
-                    'object-fit:contain;'
-                    'display:block;'
-                    'margin-bottom:8px;'
-                    '" onerror="this.style.display=\'none\';">'
-                    
-                    '<div style="'
-                    'font-size:12px;'
-                    'word-break:break-all;'
-                    'color:#555;'
-                    '">'
-
-                    '{}'
-
-                    '</div>'
-
-                    '</div>',
-
+                    """
+                    <div style="
+                        display:inline-block;
+                        vertical-align:top;
+                        margin:10px;
+                        padding:10px;
+                        width:200px;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                        background:#fafafa;
+                        text-align:center;
+                    ">
+                        <img
+                            src="{}"
+                            alt="Product image"
+                            style="
+                                width:180px;
+                                height:140px;
+                                object-fit:contain;
+                                display:block;
+                                margin:0 auto 8px auto;
+                                border-radius:6px;
+                            "
+                        >
+                        <div style="
+                            font-size:11px;
+                            color:#555;
+                            word-break:break-all;
+                        ">
+                            {}
+                        </div>
+                    </div>
+                    """,
                     image_url,
-                    image_value,
+                    image_url,
                 )
             )
 
+        if not previews:
+            return "No valid images."
+
         return format_html(
-            '<div style="'
-            'display:flex;'
-            'flex-wrap:wrap;'
-            'gap:10px;'
-            '">'
-            '{}'
-            '</div>',
+            '<div style="display:flex;flex-wrap:wrap;">{}</div>',
             "".join(
                 str(item)
                 for item in previews
@@ -387,4 +291,54 @@ class CartAdmin(admin.ModelAdmin):
         "user__name",
         "user__email",
         "product__name",
+    )
+    # ============================================================
+# ORDER ADMIN
+# ============================================================
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "user",
+        "total_amount",
+        "payment_status",
+        "order_status",
+        "created_at",
+    )
+
+    list_filter = (
+        "payment_status",
+        "order_status",
+        "created_at",
+    )
+
+    search_fields = (
+        "id",
+        "user__name",
+        "user__email",
+    )
+
+    ordering = (
+        "-created_at",
+    )
+
+    list_editable = (
+        "payment_status",
+        "order_status",
+    )
+
+    fields = (
+        "user",
+        "total_amount",
+        "payment_status",
+        "order_status",
+        "created_at",
+    )
+
+    readonly_fields = (
+        "user",
+        "total_amount",
+        "created_at",
     )

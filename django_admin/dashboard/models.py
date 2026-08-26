@@ -125,3 +125,44 @@ class Cart(models.Model):
             f"{self.product.name} "
             f"(Qty: {self.quantity})"
         )
+    # ============================================================
+# ORDER
+# ============================================================
+
+class Order(models.Model):
+
+    id = models.AutoField(
+        primary_key=True
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        db_column="user_id",
+        related_name="orders",
+    )
+
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+
+    payment_status = models.CharField(
+        max_length=30,
+    )
+
+    order_status = models.CharField(
+        max_length=30,
+    )
+
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = "orders"
+
+    def __str__(self):
+        return (
+            f"Order #{self.id} - "
+            f"{self.user.name}"
+        )
