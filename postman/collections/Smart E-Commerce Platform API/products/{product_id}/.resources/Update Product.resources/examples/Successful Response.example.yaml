@@ -1,0 +1,51 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/products/:product_id"
+  method: PUT
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    product_id: "9300"
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "description": "string",
+        "category": null,
+        "price": null,
+        "stock": null,
+        "popularity": 3588,
+        "images": [
+          "string",
+          "string"
+        ]
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 4658,
+        "name": "string",
+        "category": "string",
+        "price": "0000000007.1671399096",
+        "stock": 5520,
+        "popularity": 549,
+        "description": "string",
+        "images": [
+          "string",
+          "string"
+        ]
+      }
+order: 1000

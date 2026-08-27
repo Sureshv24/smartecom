@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/cart"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Get Cart.resources/examples
+order: 5000

@@ -1,0 +1,6 @@
+$kind: http-request
+name: http://127.0.0.1:8000/openapi.json
+description: ""
+url: http://127.0.0.1:8000/openapi.json
+method: GET
+order: 4355800532835237

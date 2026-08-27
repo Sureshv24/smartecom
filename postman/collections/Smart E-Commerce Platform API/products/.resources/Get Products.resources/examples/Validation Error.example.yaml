@@ -1,0 +1,59 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/products?category=string&min_price=5738.730330561735&max_price=5738.730330561735&popular=false&in_stock=false"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    - key: category
+      value: string
+      description: Filter by product category
+    - key: min_price
+      value: "5738.730330561735"
+      description: Minimum product price
+    - key: max_price
+      value: "5738.730330561735"
+      description: Maximum product price
+    - key: popular
+      value: "false"
+      description: Sort by popularity when true
+    - key: in_stock
+      value: "false"
+      description: Show only products with stock > 0
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity (WebDAV) (RFC 4918)
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "detail": [
+          {
+            "loc": [
+              3641,
+              "string"
+            ],
+            "msg": "string",
+            "type": "string",
+            "input": "",
+            "ctx": {}
+          },
+          {
+            "loc": [
+              3208,
+              3502
+            ],
+            "msg": "string",
+            "type": "string",
+            "input": "",
+            "ctx": {}
+          }
+        ]
+      }
+order: 2000

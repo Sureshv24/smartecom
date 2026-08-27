@@ -1,0 +1,37 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/notifications"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": 934,
+          "user_id": 1444,
+          "type": "string",
+          "message": "string",
+          "read_status": "string",
+          "timestamp": "2007-06-28T00:27:57.783Z"
+        },
+        {
+          "id": 1859,
+          "user_id": 9935,
+          "type": "string",
+          "message": "string",
+          "read_status": "string",
+          "timestamp": "2011-05-13T00:07:06.209Z"
+        }
+      ]
+order: 1000

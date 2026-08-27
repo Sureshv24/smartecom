@@ -1,0 +1,30 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/checkout"
+  method: POST
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "order_id": 215,
+        "subtotal": "+044585.6",
+        "tax": "00000000378245994.95",
+        "total": "+000000000031470541126118631",
+        "currency": "string",
+        "checkout_url": "string",
+        "session_id": "string",
+        "payment_status": "string",
+        "order_status": "string"
+      }
+order: 1000

@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/auth0/login"
+method: GET
+headers:
+  Accept: application/json
+settings: {}
+examples: ./.resources/Auth0 Login.resources/examples
+order: 1000

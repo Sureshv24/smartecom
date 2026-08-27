@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/cart/:cart_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  cart_id: "8883"
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Remove From Cart Legacy.resources/examples
+order: 2000

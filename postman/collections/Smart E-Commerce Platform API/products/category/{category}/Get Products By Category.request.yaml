@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/products/category/:category"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  category: string
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Get Products By Category.resources/examples
+order: 1000

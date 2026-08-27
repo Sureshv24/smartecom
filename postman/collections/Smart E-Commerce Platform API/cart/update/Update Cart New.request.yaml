@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/cart/update?cart_id=8883"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+queryParams:
+  cart_id: "8883"
+body:
+  type: json
+  content: |-
+    {
+      "quantity": 5571
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Update Cart New.resources/examples
+order: 1000

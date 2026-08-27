@@ -1,0 +1,49 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/products/category/:category"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    category: string
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": 9967,
+          "name": "string",
+          "category": "string",
+          "price": "0607535973",
+          "stock": 6238,
+          "popularity": 8547,
+          "description": "string",
+          "images": [
+            "string",
+            "string"
+          ]
+        },
+        {
+          "id": 7436,
+          "name": "string",
+          "category": "string",
+          "price": "00056890.505000525",
+          "stock": 9038,
+          "popularity": 3112,
+          "description": "string",
+          "images": [
+            "string",
+            "string"
+          ]
+        }
+      ]
+order: 1000

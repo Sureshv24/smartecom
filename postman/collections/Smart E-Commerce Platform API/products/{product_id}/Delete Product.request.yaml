@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/products/:product_id"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  product_id: "9300"
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Delete Product.resources/examples
+order: 3000

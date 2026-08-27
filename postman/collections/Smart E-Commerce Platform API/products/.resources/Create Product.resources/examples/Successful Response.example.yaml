@@ -1,0 +1,43 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/products"
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "price": "0000922296.4640447",
+        "description": null,
+        "category": "General",
+        "stock": 0,
+        "popularity": 0,
+        "images": null
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 867,
+        "name": "string",
+        "category": "string",
+        "price": "+00000315471.70306",
+        "stock": 6994,
+        "popularity": 5232,
+        "description": "string",
+        "images": null
+      }
+order: 1000

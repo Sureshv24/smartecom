@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/products/:product_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  product_id: "9300"
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Get Product.resources/examples
+order: 1000

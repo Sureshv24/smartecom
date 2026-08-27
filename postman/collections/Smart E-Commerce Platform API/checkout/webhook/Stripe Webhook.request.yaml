@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/checkout/webhook"
+method: POST
+headers:
+  Accept: application/json
+settings: {}
+examples: ./.resources/Stripe Webhook.resources/examples
+order: 1000

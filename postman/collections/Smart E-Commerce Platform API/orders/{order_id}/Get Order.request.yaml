@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/orders/:order_id"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  order_id: "7802"
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Get Order.resources/examples
+order: 1000

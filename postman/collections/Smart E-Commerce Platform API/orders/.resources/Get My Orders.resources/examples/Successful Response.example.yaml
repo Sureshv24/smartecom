@@ -1,0 +1,71 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/orders"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      [
+        {
+          "id": 4757,
+          "user_id": 5749,
+          "total_amount": "-00000575058811330270692",
+          "status": "string",
+          "created_at": "1981-07-26T21:36:29.880Z",
+          "items": [
+            {
+              "id": 2978,
+              "product_id": 857,
+              "product_name": "string",
+              "quantity": 6773,
+              "price": "+0000007367",
+              "subtotal": "-0000000802417006002"
+            },
+            {
+              "id": 6907,
+              "product_id": 6867,
+              "product_name": "string",
+              "quantity": 527,
+              "price": "669602",
+              "subtotal": "0000972951.021"
+            }
+          ]
+        },
+        {
+          "id": 6615,
+          "user_id": 3536,
+          "total_amount": "000000000435356890520",
+          "status": "string",
+          "created_at": "1973-09-12T19:43:11.865Z",
+          "items": [
+            {
+              "id": 501,
+              "product_id": 7360,
+              "product_name": "string",
+              "quantity": 2912,
+              "price": "+806019.9571",
+              "subtotal": "00000767259323434"
+            },
+            {
+              "id": 1329,
+              "product_id": 2174,
+              "product_name": "string",
+              "quantity": 2067,
+              "price": "-00000000076.94303966",
+              "subtotal": "51168998468"
+            }
+          ]
+        }
+      ]
+order: 1000

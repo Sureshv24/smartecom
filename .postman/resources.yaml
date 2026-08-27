@@ -2,6 +2,10 @@
 workspace:
   id: c98d8605-e0ac-4e8a-8ba7-151ce6105f3b
 
+cloudResources:
+  collections:
+    ../postman/collections/Smart E-Commerce Platform API: 83f503d6-003e-4fb5-abca-4c8f645ed136
+
 # All resources in the `postman/` folder are automatically registered in Local View.
 # Point to additional files outside the `postman/` folder to register them individually. Example:
 #localResources:

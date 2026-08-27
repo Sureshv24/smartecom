@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/notifications/read"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "notification_id": 3053
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Mark Notification Read.resources/examples
+order: 1000

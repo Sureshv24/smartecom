@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/auth/register"
+  method: POST
+  headers:
+    Content-Type: application/json
+    Accept: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "name": "string",
+        "email": "LMl@xGNuvVorXJCuPkniAU.gioh",
+        "password": "stringstring",
+        "role": "staff"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 1765,
+        "name": "string",
+        "email": "2rkGdEDl@oWHgixoTsrAYkW.ur",
+        "role": "string"
+      }
+order: 1000

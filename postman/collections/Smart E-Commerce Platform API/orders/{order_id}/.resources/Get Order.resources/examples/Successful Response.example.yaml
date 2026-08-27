@@ -1,0 +1,46 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/orders/:order_id"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  pathVariables:
+    order_id: "7802"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 4774,
+        "user_id": 158,
+        "total_amount": "+0000000973004.2203288578",
+        "status": "string",
+        "created_at": "1964-05-10T18:09:46.194Z",
+        "items": [
+          {
+            "id": 945,
+            "product_id": 2972,
+            "product_name": "string",
+            "quantity": 2491,
+            "price": "+000000000835916",
+            "subtotal": "0000164076.49799"
+          },
+          {
+            "id": 503,
+            "product_id": 8690,
+            "product_name": "string",
+            "quantity": 703,
+            "price": "71",
+            "subtotal": "054146236"
+          }
+        ]
+      }
+order: 1000

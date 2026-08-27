@@ -1,0 +1,30 @@
+$kind: http-request
+url: "{{baseUrl}}/products/:product_id"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  product_id: "9300"
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "description": "string",
+      "category": null,
+      "price": null,
+      "stock": null,
+      "popularity": 3588,
+      "images": [
+        "string",
+        "string"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Update Product.resources/examples
+order: 2000

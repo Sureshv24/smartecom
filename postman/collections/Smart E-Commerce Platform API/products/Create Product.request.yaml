@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{baseUrl}}/products"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "string",
+      "price": "0000922296.4640447",
+      "description": null,
+      "category": "General",
+      "stock": 0,
+      "popularity": 0,
+      "images": null
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Create Product.resources/examples
+order: 3000

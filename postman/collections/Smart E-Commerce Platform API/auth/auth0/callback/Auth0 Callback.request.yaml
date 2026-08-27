@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/auth0/callback"
+method: GET
+headers:
+  Accept: application/json
+settings: {}
+examples: ./.resources/Auth0 Callback.resources/examples
+order: 1000

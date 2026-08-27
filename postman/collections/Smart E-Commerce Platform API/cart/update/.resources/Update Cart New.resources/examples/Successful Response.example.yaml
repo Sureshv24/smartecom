@@ -1,0 +1,48 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/cart/update?cart_id=8883"
+  method: PUT
+  headers:
+    - key: Content-Type
+      value: application/json
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+  queryParams:
+    cart_id: "8883"
+  body:
+    type: json
+    content: |-
+      {
+        "quantity": 5571
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": 9599,
+        "product_id": 8659,
+        "quantity": 5495,
+        "product": {
+          "id": 8342,
+          "name": "string",
+          "price": "+000000000030879",
+          "stock": 8789,
+          "description": null,
+          "images": [
+            "",
+            ""
+          ],
+          "category": null,
+          "popularity": 0
+        },
+        "item_total": "0000000005541"
+      }
+order: 1000

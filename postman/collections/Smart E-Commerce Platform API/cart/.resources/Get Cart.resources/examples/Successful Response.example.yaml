@@ -1,0 +1,61 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/cart"
+  method: GET
+  headers:
+    - key: Accept
+      value: application/json
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": 431,
+            "product_id": 1862,
+            "quantity": 7962,
+            "product": {
+              "id": 8744,
+              "name": "string",
+              "price": "-00000000660339621298055",
+              "stock": 8020,
+              "description": null,
+              "images": null,
+              "category": null,
+              "popularity": 0
+            },
+            "item_total": "0000000066"
+          },
+          {
+            "id": 5650,
+            "product_id": 5018,
+            "quantity": 2657,
+            "product": {
+              "id": 1611,
+              "name": "string",
+              "price": "00000005137.28800431",
+              "stock": 6153,
+              "description": "string",
+              "images": [
+                "",
+                ""
+              ],
+              "category": null,
+              "popularity": 0
+            },
+            "item_total": "+000802776"
+          }
+        ],
+        "subtotal": "-05",
+        "tax": "000000022.7934482",
+        "grand_total": "06103638"
+      }
+order: 1000
