@@ -1,16 +1,62 @@
-# React + Vite
+# Smart E-Commerce Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Technologies
+- React
+- FastAPI
+- Django
+- MySQL
+- WebSockets
+- Stripe
+- Chart.js
+- Postman
 
-Currently, two official plugins are available:
+## 1. Run FastAPI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+cd fastapi_backend
+.\venv\Scripts\Activate.ps1
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 
-## React Compiler
+Swagger:
+http://127.0.0.1:8000/docs
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+OpenAPI:
+http://127.0.0.1:8000/openapi.json
 
-## Expanding the ESLint configuration
+## 2. Run Django Admin
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+cd django_admin
+.\venv\Scripts\Activate.ps1
+python manage.py runserver 8001
+
+Django Admin:
+http://127.0.0.1:8001/admin/
+
+Analytics:
+http://127.0.0.1:8001/analytics/
+
+## 3. Run Frontend
+
+cd frontend
+npm install
+npm run dev
+
+Frontend:
+http://localhost:5173
+
+## Database
+
+MySQL database:
+smart_ecommerce
+
+Host:
+127.0.0.1
+
+Port:
+3306
+
+## API Testing
+
+Import:
+Smart_Ecommerce_Postman_Collection.json
+
+into Postman.
