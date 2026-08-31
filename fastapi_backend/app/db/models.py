@@ -71,6 +71,12 @@ class User(Base):
         nullable=False,
     )
 
+    return_requests = relationship(
+        "ReturnRequest",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
 
 # ============================================================
 # PRODUCT
@@ -230,6 +236,12 @@ class Order(Base):
         "Payment",
         back_populates="order",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    return_requests = relationship(
+        "ReturnRequest",
+        back_populates="order",
         cascade="all, delete-orphan",
     )
 
@@ -398,4 +410,67 @@ class Notification(Base):
     user = relationship(
         "User",
         backref="notifications",
+    )
+
+
+# ============================================================
+# RETURN REQUEST
+# ============================================================
+
+class ReturnRequest(Base):
+    __tablename__ = "return_requests"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
+
+    order_id = Column(
+        Integer,
+        ForeignKey("orders.id"),
+        nullable=False,
+        index=True,
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+
+    reason = Column(
+        String(255),
+        nullable=False,
+    )
+
+    comment = Column(
+        Text,
+        nullable=True,
+    )
+
+    status = Column(
+        String(30),
+        nullable=False,
+        default="pending",
+        index=True,
+    )
+
+    created_at = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        index=True,
+    )
+
+    order = relationship(
+        "Order",
+        back_populates="return_requests",
+    )
+
+    user = relationship(
+        "User",
+        back_populates="return_requests",
     )

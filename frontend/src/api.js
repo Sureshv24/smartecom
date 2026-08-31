@@ -92,6 +92,7 @@ const refreshAccessToken = async () => {
           refresh_token:
             refreshToken,
         }),
+
       }
     );
 
@@ -883,6 +884,43 @@ export const api = {
         `${API_URL}/orders/${orderId}`,
         {
           method: "GET",
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
+  // REQUEST RETURN
+  // POST /orders/{orderId}/return
+  // ==========================================================
+
+  requestReturn: async (
+    orderId,
+    returnData,
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/orders/${orderId}/return`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body:
+            JSON.stringify(
+              returnData
+            ),
         }
       );
 

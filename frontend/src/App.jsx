@@ -5,61 +5,48 @@ import "./App.css";
 import Products from "./Products";
 import Cart from "./Cart";
 import PaymentMethod from "./PaymentMethod";
+import Orders from "./Orders";
 
 import { useAuth0 } from "@auth0/auth0-react";
 
 
 function App() {
-
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [user, setUser] = useState(null);
-
   const [message, setMessage] = useState("");
 
-
   // ============================================================
-  // NOTIFICATION STATE
+  // NOTIFICATIONS
   // ============================================================
 
-  const [notifications, setNotifications] =
-    useState([]);
-
+  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] =
     useState(false);
 
-
   // ============================================================
-  // REAL-TIME WEBSOCKET STATE
+  // WEBSOCKET
   // ============================================================
 
-  const [socket, setSocket] =
-    useState(null);
-
+  const [socket, setSocket] = useState(null);
   const [realtimeMessage, setRealtimeMessage] =
     useState("");
-
 
   // ============================================================
   // PAGE NAVIGATION
   // ============================================================
 
-  const [showCart, setShowCart] =
-    useState(false);
-
+  const [showCart, setShowCart] = useState(false);
   const [showPaymentMethod, setShowPaymentMethod] =
     useState(false);
-
+  const [showOrders, setShowOrders] = useState(false);
 
   // ============================================================
-  // PRODUCT VIEW
+  // PRODUCTS
   // ============================================================
 
   const [showAllProducts, setShowAllProducts] =
     useState(false);
-
 
   // ============================================================
   // AUTH0
@@ -73,20 +60,16 @@ function App() {
     user: auth0User,
   } = useAuth0();
 
-
   // ============================================================
   // AUTH0 SOCIAL USER
   // ============================================================
 
   useEffect(() => {
-
     if (
       isAuthenticated &&
       auth0User
     ) {
-
       const socialUser = {
-
         id:
           auth0User.sub ||
           auth0User.email ||
@@ -98,172 +81,102 @@ function App() {
           "Social User",
 
         email:
-          auth0User.email ||
-          "",
+          auth0User.email || "",
 
-        role:
-          "customer",
+        role: "customer",
       };
 
-
-      setUser(
-        socialUser
-      );
-
+      setUser(socialUser);
 
       setMessage(
         "Social login successful! ✅"
       );
-
     }
-
   }, [
     isAuthenticated,
     auth0User,
   ]);
 
-
   // ============================================================
-  // RESTORE FASTAPI USER AFTER PAGE REDIRECT
+  // RESTORE FASTAPI USER
   // ============================================================
 
   useEffect(() => {
-
     const restoreUser = async () => {
-
       const token =
         localStorage.getItem(
           "access_token"
         );
 
-
       if (!token) {
         return;
       }
 
-
       try {
-
         const userData =
-          await api.getMe(
-            token
-          );
+          await api.getMe(token);
 
-
-        if (
-          userData?.email
-        ) {
-
-          setUser(
-            userData
-          );
-
+        if (userData?.email) {
+          setUser(userData);
         }
-
       } catch (error) {
-
         console.error(
           "Session restore error:",
           error
         );
-
       }
-
     };
 
-
     restoreUser();
-
   }, []);
-
 
   // ============================================================
   // LOAD NOTIFICATIONS
   // ============================================================
 
   useEffect(() => {
-
     if (!user) {
       return;
     }
 
-
-    const loadNotifications =
-      async () => {
-
-        try {
-
-          const token =
-            localStorage.getItem(
-              "access_token"
-            );
-
-
-          if (!token) {
-            return;
-          }
-
-
-          const data =
-            await api.getNotifications(
-              token
-            );
-
-
-          if (
-            Array.isArray(
-              data
-            )
-          ) {
-
-            setNotifications(
-              data
-            );
-
-          }
-
-          else if (
-            Array.isArray(
-              data?.notifications
-            )
-          ) {
-
-            setNotifications(
-              data.notifications
-            );
-
-          }
-
-          else {
-
-            setNotifications(
-              []
-            );
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Notification loading error:",
-            error
+    const loadNotifications = async () => {
+      try {
+        const token =
+          localStorage.getItem(
+            "access_token"
           );
 
+        if (!token) {
+          return;
         }
 
-      };
+        const data =
+          await api.getNotifications(
+            token
+          );
 
-
-    // ----------------------------------------------------------
-    // Initial load
-    // ----------------------------------------------------------
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        } else if (
+          Array.isArray(
+            data?.notifications
+          )
+        ) {
+          setNotifications(
+            data.notifications
+          );
+        } else {
+          setNotifications([]);
+        }
+      } catch (error) {
+        console.error(
+          "Notification loading error:",
+          error
+        );
+      }
+    };
 
     loadNotifications();
-
-
-    // ----------------------------------------------------------
-    // Refresh every 5 seconds
-    // ----------------------------------------------------------
 
     const interval =
       setInterval(
@@ -271,264 +184,130 @@ function App() {
         5000
       );
 
-
     return () => {
-
-      clearInterval(
-        interval
-      );
-
+      clearInterval(interval);
     };
-
   }, [user]);
-
 
   // ============================================================
   // WEBSOCKET - REAL-TIME NOTIFICATIONS
   // ============================================================
 
   useEffect(() => {
-
     if (!user) {
       return;
     }
-
-
-    console.log(
-      "Connecting to notification WebSocket..."
-    );
-
-
-    // ----------------------------------------------------------
-    // CREATE WEBSOCKET CONNECTION
-    // ----------------------------------------------------------
 
     const ws =
       new WebSocket(
         "ws://127.0.0.1:8000/ws/notifications"
       );
 
-
-    // ----------------------------------------------------------
-    // CONNECTION OPENED
-    // ----------------------------------------------------------
-
     ws.onopen = () => {
-
       console.log(
         "WebSocket connected ✅"
       );
 
-
-      setSocket(
-        ws
-      );
-
-
-      // --------------------------------------------------------
-      // Keep connection alive
-      // --------------------------------------------------------
-
-      ws.send(
-        "ping"
-      );
-
-    };
-
-
-    // ----------------------------------------------------------
-    // MESSAGE RECEIVED
-    // ----------------------------------------------------------
-
-    ws.onmessage = (
-      event
-    ) => {
+      setSocket(ws);
 
       try {
+        ws.send("ping");
+      } catch (error) {
+        console.error(
+          "WebSocket ping error:",
+          error
+        );
+      }
+    };
 
+    ws.onmessage = (event) => {
+      try {
         const data =
-          JSON.parse(
-            event.data
-          );
-
+          JSON.parse(event.data);
 
         console.log(
           "WebSocket event received:",
           data
         );
 
-
-        // ------------------------------------------------------
         // PONG
-        // ------------------------------------------------------
-
         if (
-          data?.type ===
-          "pong"
+          data?.type === "pong"
         ) {
-
-          console.log(
-            "WebSocket pong received ✅"
-          );
-
           return;
-
         }
 
-
-        // ------------------------------------------------------
         // CART UPDATED
-        // ------------------------------------------------------
-
         if (
           data?.type ===
           "cart_updated"
         ) {
-
-          // ----------------------------------------------------
-          // Ignore events belonging to another user
-          // ----------------------------------------------------
-
           if (
             data.user_id !==
             user.id
           ) {
-
             return;
-
           }
-
-
-          console.log(
-            "Cart updated in real time ✅",
-            data
-          );
-
-
-          // ----------------------------------------------------
-          // Display realtime message
-          // ----------------------------------------------------
 
           let text =
             "Cart updated";
 
-
           if (
-            data.action ===
-            "added"
+            data.action === "added"
           ) {
-
             text =
               "Product added to cart";
-
-          }
-
-          else if (
+          } else if (
             data.action ===
             "quantity_updated"
           ) {
-
             text =
               "Cart quantity updated";
-
-          }
-
-          else if (
+          } else if (
             data.action ===
             "removed"
           ) {
-
             text =
               "Product removed from cart";
-
           }
 
-
-          setRealtimeMessage(
-            text
-          );
-
-
-          // ----------------------------------------------------
-          // Clear temporary message
-          // ----------------------------------------------------
+          setRealtimeMessage(text);
 
           setTimeout(() => {
-
-            setRealtimeMessage(
-              ""
-            );
-
+            setRealtimeMessage("");
           }, 3000);
-
         }
 
       } catch (error) {
-
         console.error(
           "Invalid WebSocket message:",
           error
         );
-
       }
-
     };
 
-
-    // ----------------------------------------------------------
-    // WEBSOCKET ERROR
-    // ----------------------------------------------------------
-
-    ws.onerror = (
-      error
-    ) => {
-
+    ws.onerror = (error) => {
       console.error(
         "WebSocket error ❌",
         error
       );
-
     };
 
-
-    // ----------------------------------------------------------
-    // WEBSOCKET CLOSED
-    // ----------------------------------------------------------
-
     ws.onclose = () => {
-
       console.log(
         "WebSocket disconnected ❌"
       );
 
-
-      setSocket(
-        null
-      );
-
+      setSocket(null);
     };
-
-
-    // ----------------------------------------------------------
-    // CLEANUP
-    // ----------------------------------------------------------
 
     return () => {
-
-      console.log(
-        "Closing WebSocket..."
-      );
-
-
       ws.close();
-
     };
-
   }, [user]);
 
-
   // ============================================================
-  // UNREAD NOTIFICATION COUNT
+  // UNREAD NOTIFICATIONS
   // ============================================================
 
   const unreadCount =
@@ -538,39 +317,30 @@ function App() {
         "read"
     ).length;
 
-
   // ============================================================
-  // MARK NOTIFICATION AS READ
+  // MARK NOTIFICATION READ
   // ============================================================
 
   const handleNotificationClick =
-    async (
-      notification
-    ) => {
-
+    async (notification) => {
       try {
-
         const token =
           localStorage.getItem(
             "access_token"
           );
 
-
         if (!token) {
           return;
         }
-
 
         if (
           notification.read_status !==
           "read"
         ) {
-
           await api.markNotificationRead(
             notification.id,
             token
           );
-
 
           setNotifications(
             (current) =>
@@ -586,143 +356,85 @@ function App() {
                     : item
               )
           );
-
         }
-
       } catch (error) {
-
         console.error(
           "Mark notification error:",
           error
         );
-
       }
-
     };
 
-
   // ============================================================
-  // EMAIL / PASSWORD LOGIN
+  // EMAIL LOGIN
   // ============================================================
 
-  const handleLogin =
-    async (
-      e
-    ) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-      e.preventDefault();
+    setMessage(
+      "Logging in..."
+    );
 
+    setUser(null);
 
-      setMessage(
-        "Logging in..."
+    try {
+      const data =
+        await api.login({
+          email,
+          password,
+        });
+
+      if (!data?.access_token) {
+        setMessage(
+          data?.detail ||
+          "Login failed ❌"
+        );
+
+        return;
+      }
+
+      localStorage.setItem(
+        "access_token",
+        data.access_token
       );
 
-
-      setUser(
-        null
-      );
-
-
-      try {
-
-        const data =
-          await api.login({
-            email,
-            password,
-          });
-
-
-        if (
-          !data.access_token
-        ) {
-
-          setMessage(
-            data.detail ||
-            "Login failed ❌"
-          );
-
-          return;
-
-        }
-
-
-        // ------------------------------------------------------
-        // Store access token
-        // ------------------------------------------------------
-
+      if (data.refresh_token) {
         localStorage.setItem(
-          "access_token",
+          "refresh_token",
+          data.refresh_token
+        );
+      }
+
+      const userData =
+        await api.getMe(
           data.access_token
         );
 
-
-        // ------------------------------------------------------
-        // Store refresh token
-        // ------------------------------------------------------
-
-        if (
-          data.refresh_token
-        ) {
-
-          localStorage.setItem(
-            "refresh_token",
-            data.refresh_token
-          );
-
-        }
-
-
-        // ------------------------------------------------------
-        // Get current user
-        // ------------------------------------------------------
-
-        const userData =
-          await api.getMe(
-            data.access_token
-          );
-
-
-        if (
-          userData?.email
-        ) {
-
-          setUser(
-            userData
-          );
-
-
-          setMessage(
-            "Login successful! ✅"
-          );
-
-        }
-
-        else {
-
-          setMessage(
-            "Token received, but user details could not be loaded."
-          );
-
-        }
-
-
-      } catch (error) {
-
-        console.error(
-          "Login error:",
-          error
-        );
-
+      if (userData?.email) {
+        setUser(userData);
 
         setMessage(
-          error.message ||
-          "Unable to connect to FastAPI ❌"
+          "Login successful! ✅"
         );
-
+      } else {
+        setMessage(
+          "Token received, but user details could not be loaded."
+        );
       }
 
-    };
+    } catch (error) {
+      console.error(
+        "Login error:",
+        error
+      );
 
+      setMessage(
+        error.message ||
+        "Unable to connect to FastAPI ❌"
+      );
+    }
+  };
 
   // ============================================================
   // GOOGLE LOGIN
@@ -730,41 +442,28 @@ function App() {
 
   const handleGoogleLogin =
     async () => {
-
       try {
-
         setMessage(
           "Redirecting to Google..."
         );
 
-
         await loginWithRedirect({
-
           authorizationParams: {
-
             connection:
               "google-oauth2",
-
           },
-
         });
-
       } catch (error) {
-
         console.error(
           "Google login error:",
           error
         );
 
-
         setMessage(
           "Unable to start Google login ❌"
         );
-
       }
-
     };
-
 
   // ============================================================
   // FACEBOOK LOGIN
@@ -772,193 +471,99 @@ function App() {
 
   const handleFacebookLogin =
     async () => {
-
       try {
-
         setMessage(
           "Redirecting to Facebook..."
         );
 
-
         await loginWithRedirect({
-
           authorizationParams: {
-
             connection:
               "facebook",
-
           },
-
         });
-
       } catch (error) {
-
         console.error(
           "Facebook login error:",
           error
         );
 
-
         setMessage(
           "Unable to start Facebook login ❌"
         );
-
       }
-
     };
-
 
   // ============================================================
   // LOGOUT
   // ============================================================
 
-  const handleLogout =
-    () => {
+  const handleLogout = () => {
+    localStorage.removeItem(
+      "access_token"
+    );
 
-      localStorage.removeItem(
-        "access_token"
-      );
+    localStorage.removeItem(
+      "refresh_token"
+    );
 
+    localStorage.removeItem(
+      "user"
+    );
 
-      localStorage.removeItem(
-        "refresh_token"
-      );
+    if (socket) {
+      socket.close();
+    }
 
+    setSocket(null);
+    setUser(null);
 
-      localStorage.removeItem(
-        "user"
-      );
+    setEmail("");
+    setPassword("");
+    setMessage("");
 
+    setNotifications([]);
+    setRealtimeMessage("");
 
-      // --------------------------------------------------------
-      // Close WebSocket before logout
-      // --------------------------------------------------------
+    setShowNotifications(false);
+    setShowCart(false);
+    setShowOrders(false);
+    setShowPaymentMethod(false);
+    setShowAllProducts(false);
 
-      if (
-        socket
-      ) {
-
-        socket.close();
-
-      }
-
-
-      setSocket(
-        null
-      );
-
-
-      setUser(
-        null
-      );
-
-
-      setEmail(
-        ""
-      );
-
-
-      setPassword(
-        ""
-      );
-
-
-      setMessage(
-        ""
-      );
-
-
-      setNotifications(
-        []
-      );
-
-
-      setRealtimeMessage(
-        ""
-      );
-
-
-      setShowNotifications(
-        false
-      );
-
-
-      setShowCart(
-        false
-      );
-
-
-      setShowPaymentMethod(
-        false
-      );
-
-
-      setShowAllProducts(
-        false
-      );
-
-
-      if (
-        isAuthenticated
-      ) {
-
-        auth0Logout({
-
-          logoutParams: {
-
-            returnTo:
-              window.location.origin,
-
-          },
-
-        });
-
-      }
-
-    };
-
+    if (isAuthenticated) {
+      auth0Logout({
+        logoutParams: {
+          returnTo:
+            window.location.origin,
+        },
+      });
+    }
+  };
 
   // ============================================================
   // AUTH0 LOADING
   // ============================================================
 
-  if (
-    auth0Loading
-  ) {
-
+  if (auth0Loading) {
     return (
+      <div className="auth-loading-page">
+        <div className="auth-loading-card">
 
-      <div
-        className="auth-loading-page"
-      >
-
-        <div
-          className="auth-loading-card"
-        >
-
-          <div
-            className="loading-spinner"
-          >
-          </div>
-
+          <div className="loading-spinner" />
 
           <h2>
             Loading Smart E-Commerce...
           </h2>
-
 
           <p>
             Please wait while we prepare your account.
           </p>
 
         </div>
-
       </div>
-
     );
-
   }
-
 
   // ============================================================
   // PAYMENT PAGE
@@ -968,133 +573,107 @@ function App() {
     user &&
     showPaymentMethod
   ) {
-
     return (
-
       <PaymentMethod
 
-        onBack={() =>
+        onBack={() => {
           setShowPaymentMethod(
             false
-          )
-        }
+          );
+        }}
 
-
-        onContinue={
-          async (
-            paymentMethod
-          ) => {
-
-            try {
-
-              const token =
-                localStorage.getItem(
-                  "access_token"
-                );
-
-
-              if (!token) {
-
-                throw new Error(
-                  "Please login again."
-                );
-
-              }
-
-
-              const order =
-                await api.createOrder(
-                  paymentMethod,
-                  token
-                );
-
-
-              console.log(
-                "Order created:",
-                order
+        onContinue={async (
+          paymentMethod
+        ) => {
+          try {
+            const token =
+              localStorage.getItem(
+                "access_token"
               );
 
-
-              // ------------------------------------------------
-              // COD
-              // ------------------------------------------------
-
-              if (
-                paymentMethod ===
-                "cod"
-              ) {
-
-                alert(
-                  `Order #${order.id} placed successfully!`
-                );
-
-
-                setShowPaymentMethod(
-                  false
-                );
-
-
-                setShowCart(
-                  false
-                );
-
-
-                return;
-
-              }
-
-
-              // ------------------------------------------------
-              // GPAY
-              // ------------------------------------------------
-
-              if (
-                paymentMethod ===
-                "gpay"
-              ) {
-
-                alert(
-                  `Order #${order.id} created. GPay payment flow is ready for integration.`
-                );
-
-
-                setShowPaymentMethod(
-                  false
-                );
-
-
-                setShowCart(
-                  false
-                );
-
-              }
-
-            } catch (
-              error
-            ) {
-
-              console.error(
-                "Checkout error:",
-                error
+            if (!token) {
+              throw new Error(
+                "Please login again."
               );
-
-
-              alert(
-                error.message ||
-                "Unable to process checkout."
-              );
-
             }
 
+            const order =
+              await api.createOrder(
+                paymentMethod,
+                token
+              );
+
+            console.log(
+              "Order created:",
+              order
+            );
+
+            // COD
+            if (
+              paymentMethod ===
+              "cod"
+            ) {
+              alert(
+                `Order #${order.id} placed successfully!`
+              );
+
+              setShowPaymentMethod(
+                false
+              );
+
+              setShowCart(false);
+
+              return;
+            }
+
+            // GPAY
+            if (
+              paymentMethod ===
+              "gpay"
+            ) {
+              alert(
+                `Order #${order.id} created. GPay payment flow is ready for integration.`
+              );
+
+              setShowPaymentMethod(
+                false
+              );
+
+              setShowCart(false);
+            }
+
+          } catch (error) {
+            console.error(
+              "Checkout error:",
+              error
+            );
+
+            alert(
+              error.message ||
+              "Unable to process checkout."
+            );
           }
-        }
-
+        }}
       />
-
     );
-
   }
 
+  // ============================================================
+  // ORDERS PAGE
+  // ============================================================
+
+  if (
+    user &&
+    showOrders
+  ) {
+    return (
+      <Orders
+        onBack={() => {
+          setShowOrders(false);
+        }}
+      />
+    );
+  }
 
   // ============================================================
   // CART PAGE
@@ -1104,79 +683,42 @@ function App() {
     user &&
     showCart
   ) {
-
     return (
-
       <Cart
 
-        onBack={() =>
-          setShowCart(
-            false
-          )
-        }
+        onBack={() => {
+          setShowCart(false);
+        }}
 
-
-        onCheckout={() =>
-          setShowPaymentMethod(
-            true
-          )
-        }
+        onCheckout={() => {
+          setShowPaymentMethod(true);
+        }}
 
       />
-
     );
-
   }
-
 
   // ============================================================
   // LOGIN PAGE
   // ============================================================
 
-  if (
-    !user
-  ) {
-
+  if (!user) {
     return (
+      <div className="auth-page">
 
-      <div
-        className="auth-page"
-      >
+        <div className="auth-card">
 
-        <div
-          className="auth-card"
-        >
+          <div className="login-brand-row">
 
-
-          {/* ==================================================
-              TOP BRAND ROW
-          ================================================== */}
-
-          <div
-            className="login-brand-row"
-          >
-
-
-            {/* LEFT - SHOP SMART LOGO */}
-
-            <div
-              className="login-logo-side"
-            >
-
+            <div className="login-logo-side">
               <img
                 src="/logo.png"
                 alt="Shop Smart E-Commerce"
                 className="shop-smart-logo"
               />
-
             </div>
 
-
-            {/* RIGHT - SMART E-COMMERCE */}
-
-            <div
-              className="login-title-side"
-            >
+            <div className="login-title-side">
 
               <h1>
                 Smart E-Commerce
@@ -1190,14 +732,7 @@ function App() {
 
           </div>
 
-
-          {/* ==================================================
-              WELCOME
-          ================================================== */}
-
-          <div
-            className="auth-heading"
-          >
+          <div className="auth-heading">
 
             <h2>
               Welcome back
@@ -1209,20 +744,11 @@ function App() {
 
           </div>
 
-
-          {/* ==================================================
-              LOGIN FORM
-          ================================================== */}
-
           <form
-            onSubmit={
-              handleLogin
-            }
+            onSubmit={handleLogin}
           >
 
-            <div
-              className="form-group"
-            >
+            <div className="form-group">
 
               <label>
                 Email
@@ -1242,10 +768,7 @@ function App() {
 
             </div>
 
-
-            <div
-              className="form-group"
-            >
+            <div className="form-group">
 
               <label>
                 Password
@@ -1265,37 +788,20 @@ function App() {
 
             </div>
 
-
             <button
               type="submit"
               className="primary-auth-btn"
             >
-
               Login
-
             </button>
 
           </form>
 
-
-          {/* ==================================================
-              SOCIAL DIVIDER
-          ================================================== */}
-
-          <div
-            className="social-divider"
-          >
-
+          <div className="social-divider">
             <span>
               OR CONTINUE WITH
             </span>
-
           </div>
-
-
-          {/* ==================================================
-              GOOGLE
-          ================================================== */}
 
           <button
             type="button"
@@ -1305,20 +811,13 @@ function App() {
             }
           >
 
-            <span
-              className="social-icon"
-            >
+            <span className="social-icon">
               G
             </span>
 
             Continue with Google
 
           </button>
-
-
-          {/* ==================================================
-              FACEBOOK
-          ================================================== */}
 
           <button
             type="button"
@@ -1328,9 +827,7 @@ function App() {
             }
           >
 
-            <span
-              className="social-icon"
-            >
+            <span className="social-icon">
               f
             </span>
 
@@ -1338,118 +835,74 @@ function App() {
 
           </button>
 
-
-          {/* ==================================================
-              MESSAGE
-          ================================================== */}
-
-          {
-            message && (
-
-              <p
-                className="message"
-              >
-                {message}
-              </p>
-
-            )
-          }
-
+          {message && (
+            <p className="message">
+              {message}
+            </p>
+          )}
 
         </div>
 
       </div>
-
     );
-
   }
 
-
   // ============================================================
-  // E-COMMERCE DASHBOARD
+  // MAIN E-COMMERCE DASHBOARD
   // ============================================================
 
   return (
-
-    <div
-      className="store-app"
-    >
-
+    <div className="store-app">
 
       {/* ========================================================
-          REAL-TIME CART MESSAGE
+          REAL-TIME MESSAGE
       ======================================================== */}
 
-      {
-        realtimeMessage && (
-
-          <div
-            style={{
-              position: "fixed",
-              top: "80px",
-              right: "20px",
-              zIndex: 9999,
-              padding: "12px 18px",
-              background: "#2563eb",
-              color: "white",
-              borderRadius: "10px",
-              boxShadow:
-                "0 8px 20px rgba(0,0,0,0.15)",
-              fontWeight: "600",
-            }}
-          >
-            🔔 {realtimeMessage}
-          </div>
-
-        )
-      }
-
+      {realtimeMessage && (
+        <div
+          style={{
+            position: "fixed",
+            top: "80px",
+            right: "20px",
+            zIndex: 9999,
+            padding: "12px 18px",
+            background: "#2563eb",
+            color: "white",
+            borderRadius: "10px",
+            boxShadow:
+              "0 8px 20px rgba(0,0,0,0.15)",
+            fontWeight: "600",
+          }}
+        >
+          🔔 {realtimeMessage}
+        </div>
+      )}
 
       {/* ========================================================
           NAVBAR
       ======================================================== */}
 
-      <header
-        className="store-navbar"
-      >
+      <header className="store-navbar">
 
-        <div
-          className="store-navbar-inner"
-        >
+        <div className="store-navbar-inner">
 
-
-          {/* STORE LOGO */}
+          {/* LOGO */}
 
           <button
             type="button"
             className="store-logo"
             onClick={() => {
 
-              setShowCart(
-                false
-              );
-
-
-              setShowPaymentMethod(
-                false
-              );
-
-
-              setShowAllProducts(
-                false
-              );
-
-
-              setShowNotifications(
-                false
-              );
+              setShowCart(false);
+              setShowOrders(false);
+              setShowPaymentMethod(false);
+              setShowAllProducts(false);
+              setShowNotifications(false);
 
             }}
           >
 
-            <span
-              className="store-logo-icon"
-            >
+            <span className="store-logo-icon">
               🛍️
             </span>
 
@@ -1459,12 +912,9 @@ function App() {
 
           </button>
 
-
           {/* SEARCH */}
 
-          <div
-            className="store-search"
-          >
+          <div className="store-search">
 
             <span>
               🔍
@@ -1477,23 +927,15 @@ function App() {
 
           </div>
 
+          {/* NAV ACTIONS */}
 
-          {/* ==================================================
-              NAV ACTIONS
-          ================================================== */}
-
-          <div
-            className="store-nav-actions"
-          >
-
+          <div className="store-nav-actions">
 
             {/* ==================================================
                 NOTIFICATIONS
             ================================================== */}
 
-            <div
-              className="notification-wrapper"
-            >
+            <div className="notification-wrapper">
 
               <button
                 type="button"
@@ -1508,198 +950,132 @@ function App() {
 
                 🔔
 
-
-                {
-                  unreadCount > 0 && (
-
-                    <span
-                      className="notification-badge"
-                    >
-
-                      {
-                        unreadCount
-                      }
-
-                    </span>
-
-                  )
-                }
+                {unreadCount > 0 && (
+                  <span className="notification-badge">
+                    {unreadCount}
+                  </span>
+                )}
 
               </button>
 
+              {showNotifications && (
+                <div className="notification-dropdown">
 
-              {/* =================================================
-                  NOTIFICATION DROPDOWN
-              ================================================= */}
+                  <div className="notification-header">
 
-              {
-                showNotifications && (
+                    <strong>
+                      Notifications
+                    </strong>
 
-                  <div
-                    className="notification-dropdown"
-                  >
-
-
-                    {/* HEADER */}
-
-                    <div
-                      className="notification-header"
-                    >
-
-                      <strong>
-                        Notifications
-                      </strong>
-
-                      <span>
-                        {
-                          notifications.length
-                        }
-                      </span>
-
-                    </div>
-
-
-                    {/* EMPTY */}
-
-                    {
-                      notifications.length ===
-                      0 ? (
-
-                        <div
-                          className="notification-empty"
-                        >
-
-                          No notifications
-
-                        </div>
-
-                      ) : (
-
-                        <div
-                          className="notification-list"
-                        >
-
-                          {
-                            notifications.map(
-                              (
-                                notification
-                              ) => (
-
-                                <button
-                                  type="button"
-                                  key={
-                                    notification.id
-                                  }
-                                  className={
-                                    `notification-item ${
-                                      notification.read_status !==
-                                      "read"
-                                        ? "unread"
-                                        : ""
-                                    }`
-                                  }
-                                  onClick={() =>
-                                    handleNotificationClick(
-                                      notification
-                                    )
-                                  }
-                                >
-
-
-                                  {/* ICON */}
-
-                                  <div
-                                    className="notification-icon"
-                                  >
-
-                                    {
-                                      notification.type ===
-                                      "payment_success"
-                                        ? "✅"
-                                        : notification.type ===
-                                          "payment_failed"
-                                          ? "❌"
-                                          : notification.type ===
-                                            "order_confirmed"
-                                            ? "📦"
-                                            : "🔔"
-                                    }
-
-                                  </div>
-
-
-                                  {/* CONTENT */}
-
-                                  <div
-                                    className="notification-content"
-                                  >
-
-                                    <strong>
-
-                                      {
-                                        String(
-                                          notification.type ||
-                                          "notification"
-                                        )
-                                          .replaceAll(
-                                            "_",
-                                            " "
-                                          )
-                                          .replace(
-                                            /\b\w/g,
-                                            (
-                                              char
-                                            ) =>
-                                              char.toUpperCase()
-                                          )
-                                      }
-
-                                    </strong>
-
-
-                                    <p>
-
-                                      {
-                                        notification.message
-                                      }
-
-                                    </p>
-
-
-                                    <small>
-
-                                      {
-                                        notification.timestamp
-                                          ? new Date(
-                                              notification.timestamp
-                                            ).toLocaleString(
-                                              "en-IN"
-                                            )
-                                          : ""
-                                      }
-
-                                    </small>
-
-                                  </div>
-
-                                </button>
-
-                              )
-                            )
-                          }
-
-                        </div>
-
-                      )
-                    }
+                    <span>
+                      {notifications.length}
+                    </span>
 
                   </div>
 
-                )
-              }
+                  {notifications.length === 0 ? (
+
+                    <div className="notification-empty">
+                      No notifications
+                    </div>
+
+                  ) : (
+
+                    <div className="notification-list">
+
+                      {notifications.map(
+                        (notification) => (
+
+                          <button
+                            type="button"
+                            key={
+                              notification.id
+                            }
+                            className={
+                              `notification-item ${
+                                notification.read_status !==
+                                "read"
+                                  ? "unread"
+                                  : ""
+                              }`
+                            }
+                            onClick={() =>
+                              handleNotificationClick(
+                                notification
+                              )
+                            }
+                          >
+
+                            <div className="notification-icon">
+
+                              {notification.type ===
+                              "payment_success"
+                                ? "✅"
+                                : notification.type ===
+                                  "payment_failed"
+                                  ? "❌"
+                                  : notification.type ===
+                                    "order_confirmed"
+                                    ? "📦"
+                                    : "🔔"}
+
+                            </div>
+
+                            <div className="notification-content">
+
+                              <strong>
+
+                                {String(
+                                  notification.type ||
+                                  "notification"
+                                )
+                                  .replaceAll(
+                                    "_",
+                                    " "
+                                  )
+                                  .replace(
+                                    /\b\w/g,
+                                    (char) =>
+                                      char.toUpperCase()
+                                  )}
+
+                              </strong>
+
+                              <p>
+                                {
+                                  notification.message
+                                }
+                              </p>
+
+                              <small>
+
+                                {
+                                  notification.timestamp
+                                    ? new Date(
+                                        notification.timestamp
+                                      ).toLocaleString(
+                                        "en-IN"
+                                      )
+                                    : ""
+                                }
+
+                              </small>
+
+                            </div>
+
+                          </button>
+
+                        )
+                      )}
+
+                    </div>
+
+                  )}
+
+                </div>
+              )}
 
             </div>
-
 
             {/* ==================================================
                 CART
@@ -1708,11 +1084,14 @@ function App() {
             <button
               type="button"
               className="nav-action-btn"
-              onClick={() =>
-                setShowCart(
-                  true
-                )
-              }
+              onClick={() => {
+
+                setShowOrders(false);
+                setShowPaymentMethod(false);
+                setShowCart(true);
+                setShowNotifications(false);
+
+              }}
             >
 
               🛒
@@ -1723,18 +1102,39 @@ function App() {
 
             </button>
 
+            {/* ==================================================
+                ORDERS
+            ================================================== */}
+
+            <button
+              type="button"
+              className="nav-action-btn"
+              onClick={() => {
+
+                setShowCart(false);
+                setShowPaymentMethod(false);
+                setShowOrders(true);
+                setShowNotifications(false);
+                setShowAllProducts(false);
+
+              }}
+            >
+
+              📦
+
+              <span>
+                Orders
+              </span>
+
+            </button>
 
             {/* ==================================================
                 USER
             ================================================== */}
 
-            <div
-              className="nav-user"
-            >
+            <div className="nav-user">
 
-              <div
-                className="nav-user-avatar"
-              >
+              <div className="nav-user-avatar">
 
                 {
                   user?.name
@@ -1745,27 +1145,19 @@ function App() {
 
               </div>
 
-
-              <div
-                className="nav-user-info"
-              >
+              <div className="nav-user-info">
 
                 <strong>
-                  {
-                    user.name
-                  }
+                  {user.name}
                 </strong>
 
                 <small>
-                  {
-                    user.role
-                  }
+                  {user.role}
                 </small>
 
               </div>
 
             </div>
-
 
             {/* ==================================================
                 LOGOUT
@@ -1778,9 +1170,7 @@ function App() {
                 handleLogout
               }
             >
-
               Logout
-
             </button>
 
           </div>
@@ -1789,34 +1179,21 @@ function App() {
 
       </header>
 
-
       {/* ========================================================
           MAIN STORE
       ======================================================== */}
 
-      <main
-        className="store-main"
-      >
+      <main className="store-main">
 
+        {/* HERO */}
 
-        {/* ======================================================
-            HERO
-        ====================================================== */}
+        <section className="store-hero">
 
-        <section
-          className="store-hero"
-        >
+          <div className="store-hero-content">
 
-          <div
-            className="store-hero-content"
-          >
-
-            <span
-              className="hero-badge"
-            >
+            <span className="hero-badge">
               ✨ Smart Shopping Experience
             </span>
-
 
             <h1>
 
@@ -1825,20 +1202,16 @@ function App() {
               <br />
 
               <span>
-                {
-                  user.name
-                }
+                {user.name}
               </span>
 
             </h1>
-
 
             <p>
               Discover quality products,
               great prices and a shopping
               experience designed for you.
             </p>
-
 
             <button
               type="button"
@@ -1867,24 +1240,13 @@ function App() {
 
           </div>
 
+          <div className="store-hero-visual">
 
-          <div
-            className="store-hero-visual"
-          >
+            <div className="hero-circle circle-one" />
 
-            <div
-              className="hero-circle circle-one"
-            >
-            </div>
+            <div className="hero-circle circle-two" />
 
-            <div
-              className="hero-circle circle-two"
-            >
-            </div>
-
-            <div
-              className="hero-product-icon"
-            >
+            <div className="hero-product-icon">
               🛍️
             </div>
 
@@ -1892,84 +1254,56 @@ function App() {
 
         </section>
 
+        {/* USER SUMMARY */}
 
-        {/* ======================================================
-            USER SUMMARY
-        ====================================================== */}
+        <section className="user-summary-card">
 
-        <section
-          className="user-summary-card"
-        >
-
-          <div
-            className="user-summary-icon"
-          >
+          <div className="user-summary-icon">
             👤
           </div>
 
-
-          <div
-            className="user-summary-content"
-          >
+          <div className="user-summary-content">
 
             <span>
               Signed in as
             </span>
 
             <strong>
-              {
-                user.email
-              }
+              {user.email}
             </strong>
 
           </div>
 
-
-          <div
-            className="role-badge"
-          >
-            {
-              user.role
-            }
+          <div className="role-badge">
+            {user.role}
           </div>
 
         </section>
 
-
-        {/* ======================================================
-            PRODUCTS
-        ====================================================== */}
+        {/* PRODUCTS */}
 
         <section
           className="store-products-section"
           id="products"
         >
 
-          <div
-            className="store-section-heading"
-          >
+          <div className="store-section-heading">
 
             <div>
 
               <span>
-
                 {
                   showAllProducts
                     ? "All Products"
                     : "Featured Collection"
                 }
-
               </span>
-
 
               <h2>
                 Explore Our Products
               </h2>
 
             </div>
-
-
-            {/* VIEW ALL */}
 
             <button
               type="button"
@@ -1979,7 +1313,6 @@ function App() {
                 setShowAllProducts(
                   true
                 );
-
 
                 setTimeout(() => {
 
@@ -2007,10 +1340,7 @@ function App() {
 
           </div>
 
-
-          <div
-            className="store-products-wrapper"
-          >
+          <div className="store-products-wrapper">
 
             <Products
               showAll={
@@ -2022,19 +1352,11 @@ function App() {
 
         </section>
 
+        {/* TRUST FEATURES */}
 
-        {/* ======================================================
-            TRUST FEATURES
-        ====================================================== */}
+        <section className="trust-section">
 
-        <section
-          className="trust-section"
-        >
-
-
-          <div
-            className="trust-card"
-          >
+          <div className="trust-card">
 
             <span>
               🚚
@@ -2054,10 +1376,7 @@ function App() {
 
           </div>
 
-
-          <div
-            className="trust-card"
-          >
+          <div className="trust-card">
 
             <span>
               🔒
@@ -2077,10 +1396,7 @@ function App() {
 
           </div>
 
-
-          <div
-            className="trust-card"
-          >
+          <div className="trust-card">
 
             <span>
               💳
@@ -2100,10 +1416,7 @@ function App() {
 
           </div>
 
-
-          <div
-            className="trust-card"
-          >
+          <div className="trust-card">
 
             <span>
               ⭐
@@ -2123,30 +1436,19 @@ function App() {
 
           </div>
 
-
         </section>
 
       </main>
 
+      {/* FOOTER */}
 
-      {/* ========================================================
-          FOOTER
-      ======================================================== */}
+      <footer className="store-footer">
 
-      <footer
-        className="store-footer"
-      >
-
-        <div
-          className="store-footer-inner"
-        >
-
+        <div className="store-footer-inner">
 
           <div>
 
-            <div
-              className="footer-logo"
-            >
+            <div className="footer-logo">
               🛍️ Smart E-Commerce
             </div>
 
@@ -2157,35 +1459,25 @@ function App() {
 
           </div>
 
-
-          <div
-            className="footer-contact"
-          >
+          <div className="footer-contact">
 
             <strong>
               Account
             </strong>
 
             <span>
-              {
-                user.email
-              }
+              {user.email}
             </span>
 
             <span>
-              Role: {
-                user.role
-              }
+              Role: {user.role}
             </span>
 
           </div>
 
         </div>
 
-
-        <div
-          className="footer-bottom"
-        >
+        <div className="footer-bottom">
 
           © 2026 Smart E-Commerce Platform.
           All rights reserved.
@@ -2194,12 +1486,8 @@ function App() {
 
       </footer>
 
-
     </div>
-
   );
-
 }
-
 
 export default App;
