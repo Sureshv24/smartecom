@@ -2721,3 +2721,524 @@ html { scroll-behavior: smooth; }
   }
 
 }
+
+
+/* ============================================================
+   MOBILE-ONLY RESPONSIVE OVERRIDES
+   IMPORTANT:
+   Desktop / Laptop CSS above is intentionally untouched.
+   These rules activate only at 767px and below.
+   ============================================================ */
+
+@media (max-width: 767px) {
+
+  /* ---------- Global mobile safety ---------- */
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  /* ==========================================================
+     LOGIN
+     ========================================================== */
+
+  .auth-page {
+    width: 100% !important;
+    min-height: 100dvh !important;
+    padding: 14px !important;
+    margin: 0 !important;
+  }
+
+  .auth-card {
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    padding: 26px 20px 28px !important;
+    border-radius: 20px !important;
+  }
+
+  .login-brand-row {
+    width: 100% !important;
+    min-height: auto !important;
+    gap: 12px !important;
+    margin: 0 0 24px !important;
+  }
+
+  .login-logo-side {
+    width: 86px !important;
+    flex: 0 0 86px !important;
+  }
+
+  .shop-smart-logo {
+    width: 82px !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .login-title-side {
+    min-width: 0 !important;
+  }
+
+  .login-title-side h1 {
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+  }
+
+  .login-title-side p {
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+  }
+
+  .auth-heading h2 {
+    font-size: 26px !important;
+  }
+
+  .auth-heading p {
+    font-size: 13px !important;
+  }
+
+  .auth-card .form-group input {
+    width: 100% !important;
+    height: 46px !important;
+  }
+
+  .primary-auth-btn,
+  .social-login {
+    min-height: 46px !important;
+  }
+
+  /* ==========================================================
+     STOREFRONT NAVBAR
+     ========================================================== */
+
+  .store-navbar {
+    width: 100% !important;
+    position: relative !important;
+  }
+
+  .store-navbar-inner {
+    width: calc(100% - 18px) !important;
+    min-height: auto !important;
+    margin: 0 auto !important;
+    padding: 10px 0 12px !important;
+
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    grid-template-rows: auto auto !important;
+
+    gap: 9px !important;
+  }
+
+  .store-logo {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 14px !important;
+  }
+
+  .store-logo-icon {
+    width: 35px !important;
+    height: 35px !important;
+    flex: 0 0 35px !important;
+  }
+
+  .store-nav-actions {
+    min-width: 0 !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
+  }
+
+  .nav-action-btn {
+    min-width: 40px !important;
+    width: 40px !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+
+  .nav-action-btn span {
+    display: none !important;
+  }
+
+  .nav-user-info,
+  .nav-logout-btn {
+    display: none !important;
+  }
+
+  .store-search {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+
+    width: 100% !important;
+    max-width: none !important;
+    height: 41px !important;
+    margin: 0 !important;
+  }
+
+  /* ==========================================================
+     STOREFRONT MAIN
+     ========================================================== */
+
+  .store-main {
+    width: calc(100% - 18px) !important;
+    margin: 0 auto !important;
+    padding: 18px 0 40px !important;
+  }
+
+  /* ==========================================================
+     HERO
+     ========================================================== */
+
+  .store-hero {
+    width: 100% !important;
+    min-height: auto !important;
+
+    grid-template-columns: 1fr !important;
+
+    padding: 28px 20px !important;
+    gap: 16px !important;
+
+    border-radius: 19px !important;
+  }
+
+  .store-hero h1 {
+    font-size: clamp(30px, 9vw, 40px) !important;
+  }
+
+  .store-hero p {
+    max-width: 100% !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  .hero-btn {
+    max-width: 100% !important;
+    min-height: 45px !important;
+    margin-top: 18px !important;
+  }
+
+  .store-hero-visual {
+    min-height: 135px !important;
+  }
+
+  .hero-product-icon {
+    width: 92px !important;
+    height: 92px !important;
+    font-size: 40px !important;
+  }
+
+  .circle-one {
+    width: 170px !important;
+    height: 170px !important;
+  }
+
+  .circle-two {
+    width: 110px !important;
+    height: 110px !important;
+  }
+
+  /* ==========================================================
+     USER SUMMARY
+     ========================================================== */
+
+  .user-summary-card {
+    width: 100% !important;
+    margin: 18px 0 24px !important;
+    padding: 13px !important;
+  }
+
+  .user-summary-content {
+    min-width: 0 !important;
+  }
+
+  .user-summary-content strong {
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* ==========================================================
+     SECTION HEADINGS
+     ========================================================== */
+
+  .store-section-heading {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .view-all-btn {
+    width: 100% !important;
+  }
+
+  /* ==========================================================
+     PRODUCTS
+     ========================================================== */
+
+  .store-products-wrapper {
+    width: 100% !important;
+    padding: 13px !important;
+  }
+
+  .store-products-wrapper .products-grid {
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  .store-products-wrapper .product-image {
+    height: 230px !important;
+  }
+
+  /* ==========================================================
+     CATEGORY + TRUST
+     ========================================================== */
+
+  .category-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .trust-section {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ==========================================================
+     FOOTER
+     ========================================================== */
+
+  .store-footer {
+    width: 100% !important;
+    padding: 28px 12px 17px !important;
+  }
+
+  .store-footer-inner {
+    width: 100% !important;
+    flex-direction: column !important;
+  }
+
+  .footer-bottom {
+    width: 100% !important;
+  }
+
+  /* ==========================================================
+     CART
+     ========================================================== */
+
+  .cart-page {
+    width: 100% !important;
+    padding: 25px 12px !important;
+  }
+
+  .cart-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cart-summary {
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .cart-item {
+    grid-template-columns:
+      75px
+      minmax(0, 1fr) !important;
+    padding: 15px !important;
+    gap: 12px !important;
+  }
+
+  .cart-product-image {
+    width: 75px !important;
+    height: 75px !important;
+  }
+
+  /* ==========================================================
+     PAYMENT
+     ========================================================== */
+
+  .payment-page {
+    width: 100% !important;
+    min-height: 100dvh !important;
+    padding: 25px 12px !important;
+  }
+
+  .payment-container {
+    width: 100% !important;
+    max-width: 700px !important;
+  }
+
+  .payment-card {
+    width: 100% !important;
+  }
+
+  /* ==========================================================
+     NOTIFICATIONS
+     ========================================================== */
+
+  .notification-dropdown {
+    position: fixed !important;
+    top: 65px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 78px) !important;
+  }
+
+  .notification-list {
+    max-height: calc(100dvh - 145px) !important;
+  }
+}
+
+
+/* ============================================================
+   SMALL PHONE
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+  .auth-page {
+    padding: 10px !important;
+  }
+
+  .auth-card {
+    padding: 22px 16px 24px !important;
+    border-radius: 18px !important;
+  }
+
+  .login-brand-row {
+    gap: 9px !important;
+  }
+
+  .login-logo-side {
+    width: 70px !important;
+    flex-basis: 70px !important;
+  }
+
+  .shop-smart-logo {
+    width: 66px !important;
+  }
+
+  .login-title-side h1 {
+    font-size: 18px !important;
+  }
+
+  .login-title-side p {
+    font-size: 9px !important;
+  }
+
+  .auth-heading h2 {
+    font-size: 23px !important;
+  }
+
+  .auth-heading p {
+    font-size: 12px !important;
+  }
+
+  .store-navbar-inner {
+    width: calc(100% - 12px) !important;
+  }
+
+  .store-logo {
+    font-size: 13px !important;
+  }
+
+  .store-logo-icon {
+    width: 34px !important;
+    height: 34px !important;
+    flex-basis: 34px !important;
+  }
+
+  .store-main {
+    width: calc(100% - 12px) !important;
+  }
+
+  .store-hero {
+    padding: 23px 15px !important;
+  }
+
+  .store-hero h1 {
+    font-size: 28px !important;
+  }
+
+  .store-products-wrapper {
+    padding: 9px !important;
+  }
+
+  .store-products-wrapper .product-image {
+    height: 205px !important;
+  }
+
+  .store-footer-inner,
+  .footer-bottom {
+    width: 100% !important;
+  }
+}
+
+
+/* ============================================================
+   VERY SMALL PHONE
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+  .auth-card {
+    padding: 20px 13px 22px !important;
+  }
+
+  .login-logo-side {
+    width: 60px !important;
+    flex-basis: 60px !important;
+  }
+
+  .shop-smart-logo {
+    width: 56px !important;
+  }
+
+  .login-title-side h1 {
+    font-size: 16px !important;
+  }
+
+  .login-title-side p {
+    font-size: 8px !important;
+  }
+
+  .store-logo {
+    font-size: 12px !important;
+  }
+
+  .store-logo-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex-basis: 32px !important;
+  }
+
+  .store-hero h1 {
+    font-size: 26px !important;
+  }
+}

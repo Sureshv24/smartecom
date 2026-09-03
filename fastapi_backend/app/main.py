@@ -20,7 +20,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
-
+from app.admin.returns import router as admin_returns_router
 
 # ============================================================
 # DATABASE
@@ -184,7 +184,9 @@ app.include_router(
 app.include_router(
     notification_router
 )
-
+app.include_router(
+    admin_returns_router
+)
 
 # ============================================================
 # WEBSOCKET DIRECT REGISTRATION

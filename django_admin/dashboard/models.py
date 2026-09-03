@@ -219,3 +219,40 @@ class OrderItem(models.Model):
             f"{self.product_name} "
             f"(Qty: {self.quantity})"
         )
+    # ============================================================
+# RETURN REQUEST
+# ============================================================
+
+class ReturnRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.DO_NOTHING,
+        db_column="order_id",
+        related_name="return_requests",
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.DO_NOTHING,
+        db_column="user_id",
+        related_name="return_requests",
+    )
+
+    reason = models.CharField(max_length=255)
+    comment = models.TextField(null=True, blank=True)
+
+    status = models.CharField(
+        max_length=30,
+        default="pending",
+    )
+
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = "return_requests"
+
+    def __str__(self):
+        return f"Return #{self.id} - Order #{self.order_id}"
