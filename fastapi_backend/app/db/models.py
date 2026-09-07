@@ -303,7 +303,75 @@ class OrderItem(Base):
         back_populates="order_items",
     )
 
+# ============================================================
+# REVIEW
+# ============================================================
 
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+        autoincrement=True,
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        index=True,
+    )
+
+    product_id = Column(
+        Integer,
+        ForeignKey("products.id"),
+        nullable=False,
+        index=True,
+    )
+
+    rating = Column(
+        Integer,
+        nullable=False,
+    )
+
+    comment = Column(
+        Text,
+        nullable=True,
+    )
+
+    status = Column(
+        String(30),
+        nullable=False,
+        default="pending",
+        index=True,
+    )
+
+    created_at = Column(
+        DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        index=True,
+    )
+
+    user = relationship(
+        "User",
+        backref="reviews",
+    )
+
+    product = relationship(
+        "Product",
+        backref="reviews",
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "product_id",
+            name="unique_user_product_review",
+        ),
+    )
 # ============================================================
 # PAYMENT
 # ============================================================

@@ -105,7 +105,9 @@ from app.core.config import (
     JWT_SECRET_KEY,
 )
 
-
+from app.reviews.router import (
+    router as review_router,
+)
 # ============================================================
 # CREATE DATABASE TABLES
 # ============================================================
@@ -186,6 +188,9 @@ app.include_router(
 )
 app.include_router(
     admin_returns_router
+)
+app.include_router(
+    review_router
 )
 
 # ============================================================

@@ -1021,6 +1021,76 @@ export const api = {
 
 
   // ==========================================================
+  // GET PRODUCT REVIEWS
+  // GET /products/{productId}/reviews
+  // ==========================================================
+
+  getProductReviews: async (
+    productId,
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/products/${productId}/reviews`,
+        {
+          method: "GET",
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
+  // CREATE PRODUCT REVIEW
+  // POST /reviews
+  // ==========================================================
+
+  createReview: async (
+    productId,
+    rating,
+    comment,
+    token
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/reviews`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            product_id:
+              productId,
+
+            rating:
+              rating,
+
+            comment:
+              comment || null,
+          }),
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
   // GET NOTIFICATIONS
   // GET /notifications
   // ==========================================================
