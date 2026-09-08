@@ -382,6 +382,28 @@ function Products({
 
 
   // ==========================================================
+  // SIMILAR PRODUCTS
+  // ==========================================================
+
+  const [
+    similarProducts,
+    setSimilarProducts,
+  ] = useState([]);
+
+
+  const [
+    similarProductsLoading,
+    setSimilarProductsLoading,
+  ] = useState(false);
+
+
+  const [
+    similarProductsError,
+    setSimilarProductsError,
+  ] = useState("");
+
+
+  // ==========================================================
   // REVIEW FORM
   // ==========================================================
 
@@ -602,6 +624,75 @@ function Products({
 
 
   // ==========================================================
+  // LOAD SIMILAR PRODUCTS
+  // ==========================================================
+
+  const loadSimilarProducts =
+    async (
+      productId
+    ) => {
+
+      try {
+
+        setSimilarProductsLoading(
+          true
+        );
+
+        setSimilarProductsError(
+          ""
+        );
+
+
+        const data =
+          await api.getSimilarProducts(
+            productId
+          );
+
+
+        const productsFromResponse =
+          Array.isArray(data)
+            ? data
+            : Array.isArray(
+                data?.products
+              )
+              ? data.products
+              : [];
+
+
+        setSimilarProducts(
+          productsFromResponse
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Similar products loading error:",
+          error
+        );
+
+        setSimilarProducts([]);
+
+        setSimilarProductsError(
+          error.message ||
+          "Unable to load similar products."
+        );
+
+      }
+
+      finally {
+
+        setSimilarProductsLoading(
+          false
+        );
+
+      }
+
+    };
+
+
+  // ==========================================================
   // OPEN PRODUCT DETAILS
   // ==========================================================
 
@@ -610,9 +701,37 @@ function Products({
       product
     ) => {
 
-      setSelectedProduct(
-        product
-      );
+      // --------------------------------------------------------
+      // GET FULL PRODUCT DETAILS
+      // GET /products/{id}
+      // This also records the browsing/view history on the backend.
+      // --------------------------------------------------------
+
+      try {
+
+        const fullProduct =
+          await api.getProduct(
+            product.id
+          );
+
+        setSelectedProduct(
+          fullProduct || product
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Product details error:",
+          error
+        );
+
+        // Keep the already-loaded product visible even if
+        // the detail request fails.
+        setSelectedProduct(
+          product
+        );
+
+      }
 
 
       setReviewRating(0);
@@ -623,12 +742,20 @@ function Products({
 
       setReviewsError("");
 
+      setSimilarProducts([]);
+
+      setSimilarProductsError("");
+
       setShowReviewForm(
         false
       );
 
 
       await loadReviews(
+        product.id
+      );
+
+      await loadSimilarProducts(
         product.id
       );
     };
@@ -658,6 +785,10 @@ function Products({
 
 
       setReviewsError("");
+
+      setSimilarProducts([]);
+
+      setSimilarProductsError("");
 
       setReviewMessage("");
 
@@ -1099,6 +1230,236 @@ function Products({
             </button>
 
           </div>
+
+        </div>
+
+
+        {/* ==================================================
+            SIMILAR PRODUCTS
+        ================================================== */}
+
+        <div className="product-reviews-section similar-products-section">
+
+          <div className="reviews-section-heading">
+
+            <div>
+
+              <span>
+                RECOMMENDED FOR THIS PRODUCT
+              </span>
+
+              <h2>
+                Similar Products
+              </h2>
+
+              <p>
+                Products similar to {selectedProduct.name}
+              </p>
+
+            </div>
+
+          </div>
+
+
+          {similarProductsLoading && (
+
+            <div className="reviews-loading">
+              Finding similar products...
+            </div>
+
+          )}
+
+
+          {!similarProductsLoading &&
+            similarProductsError && (
+
+              <div className="review-error-message">
+                {similarProductsError}
+              </div>
+
+            )}
+
+
+          {!similarProductsLoading &&
+            !similarProductsError &&
+            similarProducts.length === 0 && (
+
+              <div className="no-reviews-card">
+
+                <div className="no-reviews-icon">
+                  🛍️
+                </div>
+
+                <h3>
+                  No similar products available
+                </h3>
+
+                <p>
+                  We could not find similar products for this item.
+                </p>
+
+              </div>
+
+            )}
+
+
+          {!similarProductsLoading &&
+            !similarProductsError &&
+            similarProducts.length > 0 && (
+
+              <div className="products-grid similar-products-grid">
+
+                {similarProducts.map(
+                  (similarProduct) => {
+
+                    const similarImageUrl =
+                      getProductImage(
+                        similarProduct
+                      );
+
+
+                    const similarRating =
+                      Number(
+                        similarProduct.average_rating || 0
+                      );
+
+
+                    return (
+
+                      <div
+                        className="product-card similar-product-card"
+                        key={similarProduct.id}
+                      >
+
+                        <div
+                          className="product-image"
+                        >
+
+                          <img
+                            src={similarImageUrl}
+                            alt={similarProduct.name}
+                            loading="lazy"
+                            onError={(event) => {
+
+                              if (
+                                event.currentTarget
+                                  .dataset
+                                  .fallback !== "true"
+                              ) {
+
+                                event.currentTarget
+                                  .dataset
+                                  .fallback = "true";
+
+                                event.currentTarget.src =
+                                  FALLBACK_IMAGE;
+
+                              }
+
+                            }}
+                          />
+
+                        </div>
+
+
+                        <div
+                          className="product-info"
+                        >
+
+                          <h3>
+                            {similarProduct.name}
+                          </h3>
+
+
+                          {similarProduct.category && (
+
+                            <p className="stock">
+                              Category: {similarProduct.category}
+                            </p>
+
+                          )}
+
+
+                          <div className="product-rating-summary">
+
+                            {renderStars(
+                              similarRating
+                            )}
+
+                            <strong>
+                              {similarRating.toFixed(1)}
+                            </strong>
+
+                            <span>
+                              ({Number(
+                                similarProduct.total_reviews || 0
+                              )})
+                            </span>
+
+                          </div>
+
+
+                          <p className="price">
+                            ₹
+                            {Number(
+                              similarProduct.price || 0
+                            ).toLocaleString(
+                              "en-IN"
+                            )}
+                          </p>
+
+
+                          <p className="stock">
+                            Stock: {similarProduct.stock}
+                          </p>
+
+
+                          {similarProduct.reason && (
+
+                            <p className="description">
+                              {similarProduct.reason}
+                            </p>
+
+                          )}
+
+
+                          <button
+                            type="button"
+                            className="view-product-btn"
+                            onClick={() =>
+                              openProductDetails(
+                                similarProduct
+                              )
+                            }
+                          >
+                            View Details →
+                          </button>
+
+
+                          <button
+                            type="button"
+                            className="add-cart-btn"
+                            onClick={() =>
+                              handleAddToCart(
+                                similarProduct
+                              )
+                            }
+                          >
+                            🛒 Add to Cart
+                          </button>
+
+                        </div>
+
+                      </div>
+
+                    );
+
+                  }
+                )}
+
+              </div>
+
+            )}
 
         </div>
 

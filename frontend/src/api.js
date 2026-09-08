@@ -1152,4 +1152,90 @@ export const api = {
 
   },
 
+
+  // ==========================================================
+  // GET SIMILAR PRODUCTS
+  // GET /products/{product_id}/similar
+  // PUBLIC
+  // ==========================================================
+
+  getSimilarProducts: async (
+    productId
+  ) => {
+
+    const response =
+      await fetch(
+        `${API_URL}/products/${productId}/similar`,
+        {
+          method: "GET",
+
+          headers: {
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
+  // GET TRENDING PRODUCTS
+  // GET /products/trending
+  // PUBLIC
+  // ==========================================================
+
+  getTrendingProducts: async () => {
+
+    const response =
+      await fetch(
+        `${API_URL}/products/trending`,
+        {
+          method: "GET",
+
+          headers: {
+            Accept:
+              "application/json",
+          },
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
+
+  // ==========================================================
+  // GET RECOMMENDATIONS
+  // GET /recommendations/{user_id}
+  // AUTHENTICATED
+  // ==========================================================
+
+  getRecommendations: async (
+    userId
+  ) => {
+
+    const response =
+      await authenticatedFetch(
+        `${API_URL}/recommendations/${userId}`,
+        {
+          method: "GET",
+        }
+      );
+
+
+    return parseResponse(
+      response
+    );
+
+  },
+
 };

@@ -5,6 +5,7 @@ import "./App.css";
 import Products from "./Products";
 import Cart from "./Cart";
 import PaymentMethod from "./PaymentMethod";
+import Recommendations from "./Recommendations";
 import Orders from "./Orders";
 
 import { useAuth0 } from "@auth0/auth0-react";
@@ -1351,6 +1352,14 @@ function App() {
           </div>
 
         </section>
+
+        {/* ======================================================
+            RECOMMENDATIONS
+        ====================================================== */}
+
+        <Recommendations
+          userId={user.id}
+        />
 
         {/* TRUST FEATURES */}
 

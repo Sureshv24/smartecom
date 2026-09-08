@@ -7,6 +7,7 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.db.database import get_db
 from app.db.models import Product
@@ -20,6 +21,10 @@ from app.products.schemas import (
     ProductResponse,
 )
 
+
+# ============================================================
+# ROUTER
+# ============================================================
 
 router = APIRouter(
     prefix="/products",
@@ -158,7 +163,10 @@ def get_products(
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="min_price cannot be greater than max_price",
+            detail=(
+                "min_price cannot be greater "
+                "than max_price"
+            ),
         )
 
     # --------------------------------------------------------
@@ -193,7 +201,7 @@ def get_products(
 # GET /products/category/{category}
 #
 # IMPORTANT:
-# This route must come BEFORE /{product_id}
+# This route must come BEFORE /{product_id:int}
 # ============================================================
 
 @router.get(
@@ -202,6 +210,7 @@ def get_products(
 )
 def get_products_by_category(
     category: str,
+
     db: Session = Depends(get_db),
 
     current_user=Depends(
@@ -241,10 +250,12 @@ def get_products_by_category(
 # GET PRODUCT BY ID
 # GET /products/{product_id}
 # ADMIN / STAFF / CUSTOMER
+#
+# ALSO RECORDS USER BROWSING HISTORY
 # ============================================================
 
 @router.get(
-    "/{product_id}",
+    "/{product_id:int}",
     response_model=ProductResponse,
 )
 def get_product(
@@ -260,6 +271,10 @@ def get_product(
         )
     ),
 ):
+    # --------------------------------------------------------
+    # GET PRODUCT
+    # --------------------------------------------------------
+
     product = (
         db.query(Product)
         .filter(
@@ -274,6 +289,42 @@ def get_product(
             detail="Product not found",
         )
 
+    # --------------------------------------------------------
+    # RECORD PRODUCT VIEW
+    # --------------------------------------------------------
+    #
+    # Every time an authenticated user opens
+    # Product Details, save one browsing event.
+    #
+    # Used for:
+    # - User Browsing History
+    # - Most Viewed Items
+    # - Recommendation scoring
+    # --------------------------------------------------------
+
+    db.execute(
+        text(
+            """
+            INSERT INTO product_views (
+                user_id,
+                product_id,
+                viewed_at
+            )
+            VALUES (
+                :user_id,
+                :product_id,
+                CURRENT_TIMESTAMP
+            )
+            """
+        ),
+        {
+            "user_id": current_user.id,
+            "product_id": product_id,
+        },
+    )
+
+    db.commit()
+
     return product
 
 
@@ -284,7 +335,7 @@ def get_product(
 # ============================================================
 
 @router.put(
-    "/{product_id}",
+    "/{product_id:int}",
     response_model=ProductResponse,
 )
 def update_product(
@@ -298,6 +349,10 @@ def update_product(
         require_role(UserRole.ADMIN)
     ),
 ):
+    # --------------------------------------------------------
+    # FIND PRODUCT
+    # --------------------------------------------------------
+
     product = (
         db.query(Product)
         .filter(
@@ -311,6 +366,10 @@ def update_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
+
+    # --------------------------------------------------------
+    # UPDATE PROVIDED FIELDS
+    # --------------------------------------------------------
 
     update_data = product_data.model_dump(
         exclude_unset=True
@@ -336,7 +395,7 @@ def update_product(
 # ============================================================
 
 @router.delete(
-    "/{product_id}",
+    "/{product_id:int}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_product(
@@ -348,6 +407,10 @@ def delete_product(
         require_role(UserRole.ADMIN)
     ),
 ):
+    # --------------------------------------------------------
+    # FIND PRODUCT
+    # --------------------------------------------------------
+
     product = (
         db.query(Product)
         .filter(
@@ -361,6 +424,10 @@ def delete_product(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
+
+    # --------------------------------------------------------
+    # DELETE PRODUCT
+    # --------------------------------------------------------
 
     db.delete(product)
     db.commit()

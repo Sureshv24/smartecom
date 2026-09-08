@@ -108,6 +108,9 @@ from app.core.config import (
 from app.reviews.router import (
     router as review_router,
 )
+from app.recommendations.router import (
+    router as recommendation_router,
+)
 # ============================================================
 # CREATE DATABASE TABLES
 # ============================================================
@@ -167,28 +170,69 @@ app.include_router(
     auth_router
 )
 
+
+# ============================================================
+# RECOMMENDATIONS
+# ============================================================
+
+app.include_router(
+    recommendation_router
+)
+
+
+# ============================================================
+# PRODUCTS
+# ============================================================
+
 app.include_router(
     product_router
 )
+
+
+# ============================================================
+# CART
+# ============================================================
 
 app.include_router(
     cart_router
 )
 
+
+# ============================================================
+# ORDERS
+# ============================================================
+
 app.include_router(
     order_router
 )
+
+
+# ============================================================
+# CHECKOUT
+# ============================================================
 
 app.include_router(
     checkout_router
 )
 
+
+# ============================================================
+# NOTIFICATIONS
+# ============================================================
+
 app.include_router(
     notification_router
 )
+
+
+# ============================================================
+# ADMIN RETURNS
+# ============================================================
+
 app.include_router(
     admin_returns_router
 )
+
 app.include_router(
     review_router
 )
